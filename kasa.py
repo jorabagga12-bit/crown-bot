@@ -15,7 +15,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "👑 Crown M4 Bot is Alive & Running 24/7!"
+    return "👑 Crown M4 Multi-Lookup Bot is Alive & Running 24/7!"
 
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
@@ -30,8 +30,8 @@ def keep_alive():
 BOT_TOKEN = "8887168683:AAFU5xQN389gI1WSOhEom41FY0I4-fRy3fs"
 ADMIN_ID = 8407090614  # आपकी Telegram ID
 
-API_URL = "https://nitin-developer-api-paid.nitinshab43.workers.dev/api"
-API_KEY = "MY_TEST_KEY_123"
+TOKEN = "xpol_Demo_combo_a811c2fb"
+BASE_URL = "https://xpolitesupgrade-api.darrify-api.workers.dev/api"
 
 DATA_FILE = "users_data.json"
 
@@ -40,7 +40,6 @@ bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 # ================= DATA PERSISTENCE =================
 
 total_lookups = 0
-
 
 def load_data():
     global total_lookups
@@ -55,7 +54,6 @@ def load_data():
             return {}
     return {}
 
-
 def save_data():
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -68,22 +66,18 @@ def save_data():
     except Exception as e:
         print(f"[!] Error saving data: {e}")
 
-
 users = load_data()
 
 # ================= HELPERS =================
-
 
 def get_user(user_id):
     uid = str(user_id)
     is_new = False
     if uid not in users:
-        # 🚨 NEW USER STARTING CREDITS SET TO 5
         users[uid] = {"credits": 5, "lookups": 0}
         save_data()
         is_new = True
     return users[uid], is_new
-
 
 def auto_delete(chat_id, message_id):
     def delete():
@@ -95,20 +89,33 @@ def auto_delete(chat_id, message_id):
 
     threading.Thread(target=delete).start()
 
+def redact_sensitive(data):
+    if isinstance(data, dict):
+        new_dict = {}
+        for k, v in data.items():
+            if k.lower() in ["aadhar", "aadhaar", "uid"]:
+                new_dict[k] = "[Redacted]"
+            else:
+                new_dict[k] = redact_sensitive(v)
+        return new_dict
+    elif isinstance(data, list):
+        return [redact_sensitive(item) for item in data]
+    return data
 
 # ================= MENU KEYBOARD =================
-
 
 def main_menu():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn1 = KeyboardButton("🇮🇳 Indian Number Lookup")
-    btn2 = KeyboardButton("💎 My Credits")
-    markup.add(btn1, btn2)
+    btn2 = KeyboardButton("🚗 Vehicle Lookup")
+    btn3 = KeyboardButton("🏦 IFSC Lookup")
+    btn4 = KeyboardButton("📍 Pincode Lookup")
+    btn5 = KeyboardButton("🌐 IP Info")
+    btn6 = KeyboardButton("💎 My Credits")
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
     return markup
 
-
 # ================= START =================
-
 
 @bot.message_handler(commands=["start"])
 def start(message):
@@ -130,16 +137,17 @@ def start(message):
 
     welcome = (
         f"👋 Hello <b>{message.from_user.first_name}</b>!\n"
-        f"Welcome to <b>crown👑m4</b> 🔥\n\n"
+        f"Welcome to <b>crown👑m4 Multi-Lookup System</b> 🔥\n\n"
         "🎁 <b>5 Free Credits</b> to start with.\n"
-        "Use the buttons below to lookup Indian numbers.\n\n"
+        "Use the buttons below to perform lookups:\n\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "📌 <b>How to use:</b>\n"
-        "1️⃣ Tap <b>🇮🇳 Indian Number Lookup</b>\n"
-        "2️⃣ Send any 10‑digit number\n"
-        "3️⃣ Get instant JSON data\n\n"
+        "📱 <b>Number Lookup:</b> Send 10-digit phone number\n"
+        "🚗 <b>Vehicle Lookup:</b> Send RC number (e.g., MH02DG4444)\n"
+        "🏦 <b>IFSC Lookup:</b> Send IFSC code (e.g., SBIN0004843)\n"
+        "📍 <b>Pincode Scanner:</b> Send 6-digit Pincode (e.g., 110001)\n"
+        "🌐 <b>IP Info:</b> Send IP address (e.g., 8.8.8.8)\n\n"
         "💎 Each lookup costs <b>1 credit</b>.\n"
-        "💬 <b>Support:</b> You can send any message here to talk with Admin.\n"
+        "💬 <b>Support:</b> Send any message here to talk with Admin.\n"
         "━━━━━━━━━━━━━━━━━━\n"
         "⚡ Powered by <b>crown👑m4</b>"
     )
@@ -149,15 +157,32 @@ def start(message):
     )
     auto_delete(msg.chat.id, msg.message_id)
 
-
 # ================= BUTTON HANDLERS =================
 
-
 @bot.message_handler(func=lambda m: m.text == "🇮🇳 Indian Number Lookup")
-def lookup_button(message):
-    msg = bot.reply_to(message, "📱 Send any 10‑digit Indian number.")
+def lookup_num_button(message):
+    msg = bot.reply_to(message, "📱 Send any 10‑digit Indian phone number.")
     auto_delete(msg.chat.id, msg.message_id)
 
+@bot.message_handler(func=lambda m: m.text == "🚗 Vehicle Lookup")
+def lookup_veh_button(message):
+    msg = bot.reply_to(message, "🚗 Send Vehicle RC number (e.g., <code>MH02DG4444</code>).")
+    auto_delete(msg.chat.id, msg.message_id)
+
+@bot.message_handler(func=lambda m: m.text == "🏦 IFSC Lookup")
+def lookup_ifsc_button(message):
+    msg = bot.reply_to(message, "🏦 Send IFSC code (e.g., <code>SBIN0004843</code>).")
+    auto_delete(msg.chat.id, msg.message_id)
+
+@bot.message_handler(func=lambda m: m.text == "📍 Pincode Lookup")
+def lookup_pin_button(message):
+    msg = bot.reply_to(message, "📍 Send 6-digit Pincode (e.g., <code>110001</code>).")
+    auto_delete(msg.chat.id, msg.message_id)
+
+@bot.message_handler(func=lambda m: m.text == "🌐 IP Info")
+def lookup_ip_button(message):
+    msg = bot.reply_to(message, "🌐 Send IP address (e.g., <code>8.8.8.8</code>).")
+    auto_delete(msg.chat.id, msg.message_id)
 
 @bot.message_handler(func=lambda m: m.text == "💎 My Credits")
 def my_credits(message):
@@ -174,42 +199,29 @@ def my_credits(message):
     )
     auto_delete(msg.chat.id, msg.message_id)
 
+# ================= LOOKUP CORE ENGINE =================
 
-# ================= NUMBER LOOKUP =================
-
-
-@bot.message_handler(
-    func=lambda m: m.text and m.text.isdigit() and len(m.text) == 10
-)
-def handle_number(message):
+def execute_api_call(message, endpoint_url, query_label, search_val):
     user_id = message.from_user.id
     user, _ = get_user(user_id)
 
     if user_id != ADMIN_ID and user["credits"] < 1:
-        msg = bot.reply_to(
-            message, "❌ Not enough credits. Contact admin for more."
-        )
+        msg = bot.reply_to(message, "❌ Not enough credits. Contact admin for more.")
         auto_delete(msg.chat.id, msg.message_id)
         return
 
-    number = message.text.strip()
     wait_msg = bot.reply_to(message, "📡 Searching...")
 
     if user_id != ADMIN_ID:
         try:
-            username = (
-                f"@{message.from_user.username}"
-                if message.from_user.username
-                else "No Username"
-            )
-            admin_log = f"🔍 <b>SEARCH NOTIFICATION</b>\n👤 <b>User:</b> {message.from_user.first_name} ({username})\n🆔 <b>User ID:</b> <code>{user_id}</code>\n📱 <b>Searched:</b> <code>{number}</code>"
+            username = f"@{message.from_user.username}" if message.from_user.username else "No Username"
+            admin_log = f"🔍 <b>SEARCH NOTIFICATION</b>\n👤 <b>User:</b> {message.from_user.first_name} ({username})\n🆔 <b>User ID:</b> <code>{user_id}</code>\n<b>Type:</b> {query_label}\n<b>Value:</b> <code>{search_val}</code>"
             bot.send_message(ADMIN_ID, admin_log, parse_mode="HTML")
         except Exception as e:
             print(f"[!] Admin Alert Error: {e}")
 
     try:
-        url = f"{API_URL}?action=num&number={number}&key={API_KEY}"
-        r = requests.get(url, timeout=15)
+        r = requests.get(endpoint_url, timeout=15)
 
         if r.status_code != 200:
             bot.edit_message_text(
@@ -235,24 +247,10 @@ def handle_number(message):
         total_lookups += 1
         save_data()
 
+        api_response = redact_sensitive(api_response)
+
         if isinstance(api_response, dict):
             api_response["owner"] = "crown 👑 m4"
-            if "metadata" in api_response and isinstance(
-                api_response["metadata"], dict
-            ):
-                api_response["metadata"]["key_owner"] = "crown"
-                api_response["metadata"]["api_key"] = "CROWN_API_KEY"
-
-            if "result" in api_response and isinstance(
-                api_response["result"], list
-            ):
-                for item in api_response["result"]:
-                    if isinstance(item, dict):
-                        item["telegram"] = "@LIFExPAI"
-                        item["channel"] = "https://t.me/LIFExPAI"
-                        item["credit"] = "crown 👑 m4"
-                        item["developer"] = "crown"
-
             api_response["telegram"] = "@LIFExPAI"
             api_response["channel"] = "https://t.me/LIFExPAI"
             api_response["credit"] = "crown 👑 m4"
@@ -268,7 +266,8 @@ def handle_number(message):
         text = f"""
 👑 <b>CROWN 👑 M4 LOOKUP SYSTEM</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━
-📱 <b>SEARCHED NUMBER:</b> <code>{number}</code>
+🔍 <b>SEARCH TYPE:</b> {query_label}
+📌 <b>QUERY:</b> <code>{search_val}</code>
 📅 <b>DATE & TIME:</b> <code>{date}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━
 <pre>{result}</pre>
@@ -292,9 +291,47 @@ def handle_number(message):
             f"❌ Script Error: {e}", message.chat.id, wait_msg.message_id
         )
 
+# ================= QUERY ROUTER =================
+
+@bot.message_handler(func=lambda m: m.text and not m.text.startswith("/"))
+def handle_queries(message):
+    txt = message.text.strip()
+
+    # Phone Number (10 digits)
+    if txt.isdigit() and len(txt) == 10:
+        url = f"{BASE_URL}/ph-tracker?token={TOKEN}&number={txt}"
+        execute_api_call(message, url, "PHONE LOOKUP", txt)
+        return
+
+    # Pincode (6 digits)
+    if txt.isdigit() and len(txt) == 6:
+        url = f"{BASE_URL}/pincode?token={TOKEN}&pincode={txt}"
+        execute_api_call(message, url, "PINCODE SCANNER", txt)
+        return
+
+    # IP Address
+    if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", txt):
+        url = f"{BASE_URL}/ip-master?token={TOKEN}&ip={txt}"
+        execute_api_call(message, url, "IP INFO", txt)
+        return
+
+    # IFSC Code (e.g., SBIN0004843)
+    if re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", txt.upper()):
+        url = f"{BASE_URL}/ifsc-master?token={TOKEN}&ifsc={txt.upper()}"
+        execute_api_call(message, url, "IFSC MASTER", txt.upper())
+        return
+
+    # Vehicle Number (e.g., MH02DG4444)
+    if re.match(r"^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$", txt.upper().replace(" ", "")):
+        clean_rc = txt.upper().replace(" ", "")
+        url = f"{BASE_URL}/vehicle-master?token={TOKEN}&rc={clean_rc}"
+        execute_api_call(message, url, "VEHICLE MASTER", clean_rc)
+        return
+
+    # Fallback to Admin 2-Way Chat if unformatted text
+    handle_all_messages(message)
 
 # ================= ADMIN COMMANDS =================
-
 
 @bot.message_handler(commands=["add"])
 def add_credits(message):
@@ -329,7 +366,6 @@ def add_credits(message):
     except Exception:
         pass
 
-
 @bot.message_handler(commands=["broadcast"])
 def broadcast(message):
     if message.from_user.id != ADMIN_ID:
@@ -350,7 +386,6 @@ def broadcast(message):
     msg = bot.reply_to(message, f"✅ Sent to {success} users.")
     auto_delete(msg.chat.id, msg.message_id)
 
-
 @bot.message_handler(commands=["stats"])
 def stats(message):
     if message.from_user.id != ADMIN_ID:
@@ -361,13 +396,8 @@ def stats(message):
     )
     auto_delete(msg.chat.id, msg.message_id)
 
-
 # ================= 💬 ANONYMOUS 2-WAY CHAT SYSTEM =================
 
-
-@bot.message_handler(
-    func=lambda m: m.chat.type == "private", content_types=["text"]
-)
 def handle_all_messages(message):
     if message.from_user.id == ADMIN_ID:
         if message.text.startswith("/msg"):
@@ -442,10 +472,11 @@ def handle_all_messages(message):
     except Exception as e:
         print(f"[!] User Message Forward Error: {e}")
 
-
 # ================= RUN =================
 
 if __name__ == "__main__":
-    print("👑 CROWN M4 BOT STARTED WITH KEEP-ALIVE SERVER")
-    keep_alive()  # Flask सर्वर बैकग्राउंड में चालू हो जाएगा
+    print("👑 CROWN M4 MULTI-LOOKUP BOT STARTED WITH KEEP-ALIVE SERVER")
+    keep_alive()
     bot.infinity_polling()
+
+        
