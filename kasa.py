@@ -28,18 +28,12 @@ def keep_alive():
 BOT_TOKEN = "8887168683:AAFU5xQN389gI1WSOhEom41FY0I4-fRy3fs"
 ADMIN_ID = 8407090614
 
-# APIs Configuration
-TOKEN = "xpol_Demo_combo_a811c2fb"
-OSINT_KEY = "demo"
-BASE_URL_MAIN = "https://xpolitesupgrade-api.darrify-api.workers.dev/api"
+# APIs Configuration (यहाँ 'demo' की जगह अपनी असली की डाल सकता है अगर बदलनी हो)
+OSINT_KEY = "demo" 
 BASE_URL_OSINT = "https://osint-api-delta.vercel.app/api"
 
 DATA_FILE = "users_data.json"
-
-# 🔴 PHOTO CONFIGURATION 🔴
-START_PHOTO_PATH = "89187_2.jpg" 
-# अगर फाइल नहीं मिलेगी, तो बोट अपने आप यह प्रीमियम हैकर फोटो यूज़ करेगा:
-FALLBACK_PHOTO_URL = "https://i.ibb.co/3s1h8B9/hacker-osint.jpg"
+START_PHOTO_PATH = "89372.jpg"  # 🔴 EXACT FILE NAME 
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 total_lookups = 0
@@ -100,14 +94,12 @@ def main_menu():
 def identity_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("📱 Phone Number", callback_data="ask_phone"),
-        InlineKeyboardButton("🪪 Aadhaar", callback_data="ask_aadhar"),
-        InlineKeyboardButton("📇 PAN Card", callback_data="ask_pan")
+        InlineKeyboardButton("📇 PAN Card", callback_data="ask_pan"),
+        InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst")
     )
     markup.add(
-        InlineKeyboardButton("🚗 Vehicle RC", callback_data="ask_veh"),
-        InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst"),
-        InlineKeyboardButton("🏦 IFSC Bank", callback_data="ask_ifsc")
+        InlineKeyboardButton("🏦 IFSC Bank", callback_data="ask_ifsc"),
+        InlineKeyboardButton("📱 IMEI Info", callback_data="ask_imei")
     )
     markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
@@ -130,11 +122,11 @@ def social_menu():
 def geo_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("🌐 IP Tracker", callback_data="ask_ip"),
-        InlineKeyboardButton("📍 Pincode Info", callback_data="ask_pin")
+        InlineKeyboardButton("🌐 IP Tracker (V1)", callback_data="ask_ip1"),
+        InlineKeyboardButton("🌐 IP Tracker (V2)", callback_data="ask_ip2")
     )
     markup.add(
-        InlineKeyboardButton("📱 IMEI Info", callback_data="ask_imei"),
+        InlineKeyboardButton("📍 Pincode Info", callback_data="ask_pin"),
         InlineKeyboardButton("🗺️ Country Info", callback_data="ask_country")
     )
     markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
@@ -150,39 +142,33 @@ def ai_menu():
     markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
 
-# ================= START COMMAND (VIP BOARD) =================
+# ================= START COMMAND =================
 @bot.message_handler(commands=["start"])
 def start(message):
     get_user(message.from_user.id)
     user_steps[message.from_user.id] = None 
 
-    # 🔴 VIP TERMINAL BOARD UI 🔴
     welcome_text = (
-        f"╔════════════════════════════════╗\n"
-        f"   👑 <b>MONEY DEVELOPER VIP OSINT</b> 👑\n"
-        f"╚════════════════════════════════╝\n\n"
-        f"👤 <b>USER INFO:</b>\n"
-        f" ┣ <b>Name:</b> <i>{message.from_user.first_name}</i>\n"
-        f" ┗ <b>Status:</b> 🟢 <i>Connected to Database</i>\n\n"
-        f"⚡ <b>SYSTEM CAPABILITIES:</b>\n"
-        f" ┣ 30+ Live Verification Nodes\n"
-        f" ┣ Govt. ID & Social Media Tracker\n"
-        f" ┗ Geo-Location & AI Integration\n\n"
-        f"👇 <b><i>ACCESS THE TERMINAL BELOW:</i></b>\n"
+        f"<b>👑 MONEY DEVELOPER VIP OSINT 👑</b>\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"👋 Welcome to the Database, <b>{message.from_user.first_name}</b>!\n\n"
+        f"👤 <b>USER DASHBOARD</b>\n"
+        f" ├ <b>Status:</b> 🟢 <i>Secured & Active</i>\n"
+        f" ├ <b>Access:</b> VIP Node Terminal\n"
+        f" └ <b>System:</b> 30+ Live Trackers\n\n"
+        f"⚡ <i>Tap a category below to deploy tools:</i>\n"
     )
 
     try:
-        # Photo Check Logic (Fix for your missing photo)
         if os.path.exists(START_PHOTO_PATH):
             with open(START_PHOTO_PATH, "rb") as photo:
                 msg = bot.send_photo(message.chat.id, photo, caption=welcome_text, reply_markup=main_menu(), parse_mode="HTML")
         else:
-            # If local photo is not found, use a fallback image URL instead of looking ugly
-            msg = bot.send_photo(message.chat.id, FALLBACK_PHOTO_URL, caption=welcome_text, reply_markup=main_menu(), parse_mode="HTML")
+            msg = bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="HTML")
         
         auto_delete(msg.chat.id, msg.message_id)
     except Exception as e:
-        bot.send_message(message.chat.id, welcome_text + f"\n\n<i>(Image Error: {e})</i>", reply_markup=main_menu(), parse_mode="HTML")
+        bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="HTML")
 
 # ================= INLINE CALLBACK HANDLER =================
 @bot.callback_query_handler(func=lambda call: True)
@@ -190,7 +176,6 @@ def handle_callbacks(call):
     chat_id = call.message.chat.id
     user_id = call.from_user.id
     
-    # Menu Navigation
     if call.data == "menu_main":
         bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=main_menu())
     elif call.data == "menu_identity":
@@ -202,7 +187,6 @@ def handle_callbacks(call):
     elif call.data == "menu_ai":
         bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=ai_menu())
         
-    # Profile
     elif call.data == "profile":
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
@@ -217,28 +201,25 @@ def handle_callbacks(call):
         )
         bot.send_message(chat_id, info_text, parse_mode="HTML")
 
-    # Target Askers (Sets State)
     else:
         prompts = {
-            "ask_phone": "📱 <i>Send 10‑digit Indian phone number.</i>",
-            "ask_aadhar": "🪪 <i>Send 12-digit Aadhaar Card number.</i>",
             "ask_pan": "📇 <i>Send 10-character PAN Card Number.</i>",
-            "ask_veh": "🚗 <i>Send Vehicle RC number (e.g., HP809021).</i>",
             "ask_gst": "🏢 <i>Send 15-character GSTIN Number.</i>",
             "ask_ifsc": "🏦 <i>Send Bank IFSC Code.</i>",
+            "ask_imei": "📱 <i>Send 15-digit IMEI Number.</i>",
             "ask_ig_prof": "📸 <i>Send Instagram Username.</i>",
             "ask_ig_dl": "⬇️ <i>Send Instagram Reel/Post URL.</i>",
             "ask_snap": "👻 <i>Send Snapchat Username.</i>",
             "ask_git": "💻 <i>Send GitHub Username.</i>",
             "ask_email": "📧 <i>Send Target Email Address.</i>",
             "ask_bgmi": "🎮 <i>Send BGMI Player ID.</i>",
-            "ask_ip": "🌐 <i>Send Target IP Address.</i>",
+            "ask_ip1": "🌐 <i>Send Target IP Address (for IP V1).</i>",
+            "ask_ip2": "🌐 <i>Send Target IP Address (for IP V2/V3).</i>",
             "ask_pin": "📍 <i>Send 6-digit Pincode.</i>",
-            "ask_imei": "📱 <i>Send 15-digit IMEI Number.</i>",
             "ask_country": "🗺️ <i>Send Country Name (e.g., india).</i>",
             "ask_aigf": "💖 <i>Send a message to your AI GF!</i>",
             "ask_aiimg": "🎨 <i>Send prompt to generate Image.</i>",
-            "ask_prompt": "✨ <i>Send a topic to generate a detailed prompt.</i>"
+            "ask_prompt": "✨ <i>Send a topic or image URL to generate prompt.</i>"
         }
         
         if call.data in prompts:
@@ -260,8 +241,12 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 
     try:
         r = requests.get(endpoint_url, timeout=25)
-        if r.status_code != 200:
-            bot.edit_message_text(f"❌ <b>API Error:</b> <code>{r.status_code}</code>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        
+        if r.status_code == 404:
+            bot.edit_message_text(f"⚠️ <b>API Error (404):</b> <i>Target data not found or Tool is currently offline.</i>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+            return
+        elif r.status_code != 200:
+            bot.edit_message_text(f"❌ <b>API Error:</b> <code>{r.status_code}</code>\n<i>Server might be busy.</i>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
             return
             
         try:
@@ -279,8 +264,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 
         result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
         
-        # 🔴 EXTREME DEVELOPER NAME SCRUBBER 🔴
-        # यह किसी भी स्पेलिंग (ROHIT, rohit, Rohit Padhwe, @FroxtDevil) को स्कैन करके मनी डेवलपर बना देगा
+        # 🔴 EXTREME DEVELOPER NAME SCRUBBER (REPLACES ROHIT/FROXTDEVIL) 🔴
         scrub_patterns = [
             r"(?i)rohit\s*padhwe",
             r"(?i)rohit",
@@ -298,25 +282,24 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         rem_credits = "♾️ Unlimited" if user_id == ADMIN_ID else user["credits"]
 
         text = f"""
-🏛️ <b><i>MONEY DEVELOPER 👑 INTEL SYSTEM</i></b> 🏛️
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏛️ <b>MONEY DEVELOPER INTEL SYSTEM</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 <b>TARGET:</b> <i>{query_label}</i>
 📌 <b>QUERY:</b> <code>{search_val}</code>
-📅 <b>TIME:</b> <code>{date}</code>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 <b><u>DATABASE OUTPUT:</u></b>
 <pre>{result_json}</pre>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'} | 💎 <b>CRD:</b> <code>{rem_credits}</code>
-⚡ <b>OWNER: MONEY DEVELOPER 👑</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'}
+⚡ <b>POWERED BY: MONEY DEVELOPER 👑</b>
 """
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
 
     except Exception as e:
-        bot.edit_message_text(f"❌ <b>Execution Error:</b> <code>{e}</code>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        bot.edit_message_text(f"❌ <b>Execution Error:</b> <code>System Timeout or Error</code>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
-# ================= SMART QUERY ROUTER =================
+# ================= SMART QUERY ROUTER (ALL ENDPOINTS INTEGRATED) =================
 @bot.message_handler(func=lambda m: m.text and not m.text.startswith("/"))
 def handle_queries(message):
     txt = message.text.strip()
@@ -326,11 +309,11 @@ def handle_queries(message):
     # Reset step
     user_steps[user_id] = None 
     
-    # 1. State-Based Routing
+    # 1. State-Based Routing (Using all user endpoints cleanly)
     if current_step:
         if current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
-            execute_api_call(message, url, "INSTAGRAM PROFILE", txt)
+            execute_api_call(message, url, "INSTAGRAM PROFILE V1", txt)
             return
         elif current_step == "ask_ig_dl":
             url = f"{BASE_URL_OSINT}/instagram-download?key={OSINT_KEY}&type=download&url={txt}"
@@ -342,7 +325,7 @@ def handle_queries(message):
             return
         elif current_step == "ask_git":
             url = f"{BASE_URL_OSINT}/github-repos?key={OSINT_KEY}&q={txt}"
-            execute_api_call(message, url, "GITHUB SEARCH", txt)
+            execute_api_call(message, url, "GITHUB REPOS SEARCH", txt)
             return
         elif current_step == "ask_country":
             url = f"{BASE_URL_OSINT}/country-info?key={OSINT_KEY}&name={txt}"
@@ -354,49 +337,74 @@ def handle_queries(message):
             return
         elif current_step == "ask_aiimg":
             url = f"{BASE_URL_OSINT}/image-generator?key={OSINT_KEY}&prompt={txt}"
-            execute_api_call(message, url, "AI IMAGE GEN", txt)
+            execute_api_call(message, url, "AI IMAGE GENERATOR", txt)
             return
         elif current_step == "ask_prompt":
             url = f"{BASE_URL_OSINT}/prompt-generator?key={OSINT_KEY}&url={txt}"
-            execute_api_call(message, url, "PROMPT GEN", txt)
+            execute_api_call(message, url, "PROMPT GENERATOR", txt)
+            return
+        elif current_step == "ask_pan":
+            url = f"{BASE_URL_OSINT}/pan-info?key={OSINT_KEY}&pan={txt.upper()}"
+            execute_api_call(message, url, "PAN CARD INFO", txt.upper())
+            return
+        elif current_step == "ask_gst":
+            url = f"{BASE_URL_OSINT}/gst-search?key={OSINT_KEY}&gstin={txt.upper()}"
+            execute_api_call(message, url, "GST SEARCH", txt.upper())
+            return
+        elif current_step == "ask_ifsc":
+            url = f"{BASE_URL_OSINT}/ifsc-info?key={OSINT_KEY}&ifsc={txt.upper()}"
+            execute_api_call(message, url, "BANK IFSC INFO", txt.upper())
+            return
+        elif current_step == "ask_imei":
+            url = f"{BASE_URL_OSINT}/imei-info?key={OSINT_KEY}&imei_number={txt}"
+            execute_api_call(message, url, "IMEI INFO CHECK", txt)
+            return
+        elif current_step == "ask_email":
+            url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
+            execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
+            return
+        elif current_step == "ask_bgmi":
+            url = f"{BASE_URL_OSINT}/bgmi-info?key={OSINT_KEY}&user={txt}"
+            execute_api_call(message, url, "BGMI PLAYER INFO", txt)
+            return
+        elif current_step == "ask_ip1":
+            url = f"{BASE_URL_OSINT}/ip-v1?key={OSINT_KEY}&query={txt}"
+            execute_api_call(message, url, "IP INFO V1", txt)
+            return
+        elif current_step == "ask_ip2":
+            url = f"{BASE_URL_OSINT}/ip-v2?key={OSINT_KEY}&ip={txt}"
+            execute_api_call(message, url, "IP INFO V2", txt)
+            return
+        elif current_step == "ask_pin":
+            url = f"{BASE_URL_OSINT}/pincode-info?key={OSINT_KEY}&pincode={txt}"
+            execute_api_call(message, url, "PINCODE INFO", txt)
             return
 
-    # 2. Auto-Detect Routing
-    clean_rc = re.sub(r'[^A-Z0-9]', '', txt.upper())
-    
+    # 2. Auto-Detect Smart Routing
     if re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
         url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
-        execute_api_call(message, url, "EMAIL DATABASE", txt)
-    elif txt.isdigit() and len(txt) == 10:
-        url = f"{BASE_URL_MAIN}/ph-tracker?token={TOKEN}&number={txt}"
-        execute_api_call(message, url, "PHONE RECORD", txt)
-    elif txt.isdigit() and len(txt) == 12:
-        url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-        execute_api_call(message, url, "AADHAAR CARD RECORD", txt)
+        execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
     elif re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", txt.upper()):
         url = f"{BASE_URL_OSINT}/pan-info?key={OSINT_KEY}&pan={txt.upper()}"
         execute_api_call(message, url, "PAN CARD INFO", txt.upper())
     elif txt.isdigit() and len(txt) == 15:
         url = f"{BASE_URL_OSINT}/imei-info?key={OSINT_KEY}&imei_number={txt}"
-        execute_api_call(message, url, "IMEI TRACKER", txt)
+        execute_api_call(message, url, "IMEI INFO CHECK", txt)
     elif txt.isdigit() and len(txt) in [8, 9, 11, 13]:
         url = f"{BASE_URL_OSINT}/bgmi-info?key={OSINT_KEY}&user={txt}"
-        execute_api_call(message, url, "BGMI PLAYER INTEL", txt)
+        execute_api_call(message, url, "BGMI PLAYER INFO", txt)
     elif txt.isdigit() and len(txt) == 6:
-        url = f"{BASE_URL_MAIN}/pincode?token={TOKEN}&pincode={txt}"
-        execute_api_call(message, url, "AREA PINCODE", txt)
+        url = f"{BASE_URL_OSINT}/pincode-info?key={OSINT_KEY}&pincode={txt}"
+        execute_api_call(message, url, "PINCODE INFO", txt)
     elif re.match(r"^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$", txt.upper()):
         url = f"{BASE_URL_OSINT}/gst-search?key={OSINT_KEY}&gstin={txt.upper()}"
-        execute_api_call(message, url, "GST BUSINESS", txt.upper())
+        execute_api_call(message, url, "GST SEARCH", txt.upper())
     elif re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", txt):
-        url = f"{BASE_URL_MAIN}/ip-master?token={TOKEN}&ip={txt}"
-        execute_api_call(message, url, "NETWORK IP", txt)
+        url = f"{BASE_URL_OSINT}/ip-v2?key={OSINT_KEY}&ip={txt}"
+        execute_api_call(message, url, "IP INFO V2", txt)
     elif re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", txt.upper()):
-        url = f"{BASE_URL_MAIN}/ifsc-master?token={TOKEN}&ifsc={txt.upper()}"
-        execute_api_call(message, url, "BANK IFSC", txt.upper())
-    elif re.match(r"^[A-Z]{2}\d{1,2}[A-Z]{0,3}\d{1,4}$", clean_rc):
-        url = f"{BASE_URL_MAIN}/vehicle-master?token={TOKEN}&rc={clean_rc}"
-        execute_api_call(message, url, "RTO VEHICLE RECORD", clean_rc)
+        url = f"{BASE_URL_OSINT}/ifsc-info?key={OSINT_KEY}&ifsc={txt.upper()}"
+        execute_api_call(message, url, "BANK IFSC INFO", txt.upper())
     else:
         msg = bot.reply_to(message, "❌ <b>Format Unidentified!</b>\n<i>Please select a tool from the /start menu first.</i>", parse_mode="HTML")
         auto_delete(msg.chat.id, msg.message_id)
