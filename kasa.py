@@ -6,7 +6,7 @@ import threading
 import time
 import requests
 import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from flask import Flask
 
 # ================= FLASK SERVER WITH MODERN WEB GUI =================
@@ -20,7 +20,7 @@ def home():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MONEY DEVELOPER VIP OSINT - Dashboard</title>
+        <title>👑 CROWN X MONEY DEVELOPER VIP OSINT - Dashboard</title>
         <style>
             body {
                 background-color: #0f172a;
@@ -93,7 +93,7 @@ def home():
     </head>
     <body>
         <div class="card">
-            <h1>👑 MONEY DEVELOPER VIP OSINT</h1>
+            <h1>👑 CROWN X MONEY DEVELOPER VIP OSINT</h1>
             <div class="status">🟢 System Online & Secure</div>
             <p>The VIP Node Terminal and 30+ OSINT Trackers are active and operating seamlessly 24/7 on cloud infrastructure.</p>
             <div class="stats">
@@ -110,7 +110,7 @@ def home():
                     <span>Terminal</span>
                 </div>
             </div>
-            <div class="footer">Powered by MONEY DEVELOPER 👑</div>
+            <div class="footer">Powered by CROWN & MONEY DEVELOPER 👑</div>
         </div>
     </body>
     </html>
@@ -136,7 +136,7 @@ BASE_URL_MAIN = "https://xpolitesupgrade-api.darrify-api.workers.dev/api"
 BASE_URL_OSINT = "https://osint-api-delta.vercel.app/api"
 
 DATA_FILE = "users_data.json"
-START_PHOTO_PATH = "89372.jpg"  # 🔴 EXACT FILE NAME 
+START_PHOTO_PATH = "89372.jpg"
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 total_lookups = 0
@@ -173,12 +173,36 @@ def get_user(user_id):
 
 def auto_delete(chat_id, message_id):
     def delete():
-        time.sleep(3600)  # Auto delete after 1 hour
+        time.sleep(3600)
         try:
             bot.delete_message(chat_id, message_id)
         except Exception:
             pass
     threading.Thread(target=delete).start()
+
+# ================= REPLY KEYBOARD (BOTTOM BUTTONS) =================
+def get_reply_keyboard():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    markup.add(
+        KeyboardButton("🇮🇳 Indian Number Lookup"),
+        KeyboardButton("🪪 Aadhaar Card Lookup")
+    )
+    markup.add(
+        KeyboardButton("📧 Email Info Lookup"),
+        KeyboardButton("🎮 BGMI Player Info")
+    )
+    markup.add(
+        KeyboardButton("🏢 GST Search"),
+        KeyboardButton("🏦 IFSC Lookup")
+    )
+    markup.add(
+        KeyboardButton("📍 Pincode Lookup"),
+        KeyboardButton("🌐 IP Info")
+    )
+    markup.add(
+        KeyboardButton("💎 My Credits")
+    )
+    return markup
 
 # ================= PREMIUM UI MENUS =================
 def main_menu():
@@ -256,14 +280,14 @@ def start(message):
     user_steps[message.from_user.id] = None 
 
     welcome_text = (
-        f"<b>👑 MONEY DEVELOPER VIP OSINT 👑</b>\n"
+        f"<b>👑 CROWN X MONEY DEVELOPER VIP OSINT 👑</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"👋 Welcome to the Database, <b>{message.from_user.first_name}</b>!\n\n"
         f"👤 <b>USER DASHBOARD</b>\n"
         f" ├ <b>Status:</b> 🟢 <i>Secured & Active</i>\n"
         f" ├ <b>Access:</b> VIP Node Terminal\n"
         f" └ <b>System:</b> 30+ Live Trackers\n\n"
-        f"⚡ <i>Tap a category below to deploy tools:</i>\n"
+        f"⚡ <i>Tap a category below or use the buttons below:</i>\n"
     )
 
     try:
@@ -273,9 +297,11 @@ def start(message):
         else:
             msg = bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="HTML")
         
+        bot.send_message(message.chat.id, "👇 <b>Quick Access Keyboards:</b>", reply_markup=get_reply_keyboard(), parse_mode="HTML")
         auto_delete(msg.chat.id, msg.message_id)
     except Exception as e:
         bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="HTML")
+        bot.send_message(message.chat.id, "👇 <b>Quick Access Keyboards:</b>", reply_markup=get_reply_keyboard(), parse_mode="HTML")
 
 # ================= INLINE CALLBACK HANDLER =================
 @bot.callback_query_handler(func=lambda call: True)
@@ -298,13 +324,13 @@ def handle_callbacks(call):
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👤 <b><u>YOUR VIP PROFILE</u></b>\n"
+            f"👑 <b><u>CROWN X MONEY VIP PROFILE</u></b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Name:</b> <i>{call.from_user.first_name}</i>\n"
             f"💎 <b>Credits:</b> {credits_display}\n"
             f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"<i>Powered by MONEY DEVELOPER</i>"
+            f"<i>Powered by CROWN & MONEY DEVELOPER 👑</i>"
         )
         bot.send_message(chat_id, info_text, parse_mode="HTML")
 
@@ -333,11 +359,11 @@ def handle_callbacks(call):
         
         if call.data in prompts:
             user_steps[user_id] = call.data
-            bot.send_message(chat_id, f"🎯 <b>TARGET LOCKED:</b>\n{prompts[call.data]}", parse_mode="HTML")
+            bot.send_message(chat_id, f"👑 <b>CROWN TARGET LOCKED:</b>\n{prompts[call.data]}", parse_mode="HTML")
 
     bot.answer_callback_query(call.id)
 
-# ================= EXECUTE API ENGINE =================
+# ================= EXECUTE API ENGINE WITH MANDATORY CROWN & MONEY BRANDING =================
 def execute_api_call(message, endpoint_url, query_label, search_val):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -346,7 +372,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         bot.reply_to(message, "❌ <i>Not enough credits. Contact Admin!</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "📡 <b><i>Extracting MONEY DEVELOPER Live Database...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "👑📡 <b><i>Extracting CROWN & MONEY DEVELOPER Live Database...</i></b>", parse_mode="HTML")
 
     try:
         r = requests.get(endpoint_url, timeout=25)
@@ -382,22 +408,23 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         ]
         
         for pattern in scrub_patterns:
-            result_json = re.sub(pattern, "MONEY DEVELOPER", result_json)
+            result_json = re.sub(pattern, "CROWN & MONEY DEVELOPER", result_json)
 
         if len(result_json) > 3500:
             result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
 
+        # 👑 CROWN & MONEY BRANDING MANDATORY AT TOP AND BOTTOM FOR ALL API RESPONSES 👑
         text = f"""
-🏛️ <b>MONEY DEVELOPER INTEL SYSTEM</b>
+👑 <b>CROWN 🏛️ MONEY DEVELOPER INTEL SYSTEM</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 <b>TARGET:</b> <i>{query_label}</i>
-📌 <b>AADHAAR NUMBER:</b> <code>{search_val}</code>
+📌 <b>QUERY VALUE:</b> <code>{search_val}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 <b><u>DATABASE OUTPUT:</u></b>
 <pre>{result_json}</pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'}
-⚡ <b>POWERED BY: MONEY DEVELOPER 👑</b>
+👑⚡ <b>POWERED BY: CROWN & MONEY DEVELOPER 👑</b>
 """
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
@@ -410,9 +437,56 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 def handle_queries(message):
     txt = message.text.strip()
     user_id = message.from_user.id
+
+    # 0. Handle Reply Keyboard Button Clicks
+    if txt == "🇮🇳 Indian Number Lookup":
+        user_steps[user_id] = "ask_phone"
+        bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send 10-digit Phone Number.</i>", parse_mode="HTML")
+        return
+    elif txt == "🪪 Aadhaar Card Lookup":
+        user_steps[user_id] = "ask_aadhar"
+        bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send 12-digit Aadhaar Number.</i>", parse_mode="HTML")
+        return
+    elif txt == "📧 Email Info Lookup":
+        user_steps[user_id] = "ask_email"
+        bot.reply_to(message, "👑 <i>Send Target Email Address.</i>", parse_mode="HTML")
+        return
+    elif txt == "🎮 BGMI Player Info":
+        user_steps[user_id] = "ask_bgmi"
+        bot.reply_to(message, "👑 <i>Send BGMI Player ID.</i>", parse_mode="HTML")
+        return
+    elif txt == "🏢 GST Search":
+        user_steps[user_id] = "ask_gst"
+        bot.reply_to(message, "👑 <i>Send 15-character GSTIN Number.</i>", parse_mode="HTML")
+        return
+    elif txt == "🏦 IFSC Lookup":
+        user_steps[user_id] = "ask_ifsc"
+        bot.reply_to(message, "👑 <i>Send Bank IFSC Code.</i>", parse_mode="HTML")
+        return
+    elif txt == "📍 Pincode Lookup":
+        user_steps[user_id] = "ask_pin"
+        bot.reply_to(message, "👑 <i>Send 6-digit Pincode.</i>", parse_mode="HTML")
+        return
+    elif txt == "🌐 IP Info":
+        user_steps[user_id] = "ask_ip2"
+        bot.reply_to(message, "👑 <i>Send Target IP Address.</i>", parse_mode="HTML")
+        return
+    elif txt == "💎 My Credits":
+        user = get_user(user_id)
+        credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
+        info_text = (
+            f"👑 <b><u>CROWN X MONEY VIP PROFILE</u></b> 👑\n"
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"🆔 <b>Name:</b> <i>{message.from_user.first_name}</i>\n"
+            f"💎 <b>Credits:</b> {credits_display}\n"
+            f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"<i>Powered by CROWN & MONEY DEVELOPER 👑</i>"
+        )
+        bot.reply_to(message, info_text, parse_mode="HTML")
+        return
+
     current_step = user_steps.get(user_id)
-    
-    # Reset step
     user_steps[user_id] = None 
     
     # 1. State-Based Routing
@@ -423,7 +497,7 @@ def handle_queries(message):
             return
         elif current_step == "ask_aadhar":
             url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-            execute_api_call(message, url, "आधार नंबर (AADHAAR NUMBER)", txt)
+            execute_api_call(message, url, "AADHAAR NUMBER", txt)
             return
         elif current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
@@ -500,7 +574,7 @@ def handle_queries(message):
         execute_api_call(message, url, "PHONE RECORD", txt)
     elif txt.isdigit() and len(txt) == 12:
         url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-        execute_api_call(message, url, "आधार नंबर (AADHAAR NUMBER)", txt)
+        execute_api_call(message, url, "AADHAAR NUMBER", txt)
     elif re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
         url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
         execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
@@ -531,6 +605,7 @@ def handle_queries(message):
 
 # ================= RUN SERVER =================
 if __name__ == "__main__":
-    print("👑 MONEY DEVELOPER VIP OSINT BOT & WEB GUI IS ONLINE!")
+    print("👑 CROWN X MONEY DEVELOPER VIP OSINT BOT & WEB GUI IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
+()
