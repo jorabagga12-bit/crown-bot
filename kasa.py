@@ -20,7 +20,7 @@ def home():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>👑 CROWN X M4 VIP OSINT - Dashboard</title>
+        <title>👑 CROWN X MONEY DEVELOPER VIP OSINT - Dashboard</title>
         <style>
             body {
                 background-color: #0f172a;
@@ -93,7 +93,7 @@ def home():
     </head>
     <body>
         <div class="card">
-            <h1>👑 CROWN X M4 VIP OSINT</h1>
+            <h1>👑 CROWN X MONEY DEVELOPER VIP OSINT</h1>
             <div class="status">🟢 System Online & Secure</div>
             <p>The VIP Node Terminal and 30+ OSINT Trackers are active and operating seamlessly 24/7 on cloud infrastructure.</p>
             <div class="stats">
@@ -110,7 +110,7 @@ def home():
                     <span>Terminal</span>
                 </div>
             </div>
-            <div class="footer">Powered & Created by CROWN 👑 M4</div>
+            <div class="footer">Powered by CROWN & MONEY DEVELOPER 👑</div>
         </div>
     </body>
     </html>
@@ -280,7 +280,7 @@ def start(message):
     user_steps[message.from_user.id] = None 
 
     welcome_text = (
-        f"<b>👑 CROWN X M4 VIP OSINT 👑</b>\n"
+        f"<b>👑 CROWN X MONEY DEVELOPER VIP OSINT 👑</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"👋 Welcome to the Database, <b>{message.from_user.first_name}</b>!\n\n"
         f"👤 <b>USER DASHBOARD</b>\n"
@@ -299,7 +299,7 @@ def start(message):
         
         bot.send_message(message.chat.id, "👇 <b>Quick Access Keyboards:</b>", reply_markup=get_reply_keyboard(), parse_mode="HTML")
         auto_delete(msg.chat.id, msg.message_id)
-    except Exception:
+    except Exception as e:
         bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="HTML")
         bot.send_message(message.chat.id, "👇 <b>Quick Access Keyboards:</b>", reply_markup=get_reply_keyboard(), parse_mode="HTML")
 
@@ -324,20 +324,20 @@ def handle_callbacks(call):
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👑 <b><u>CROWN X M4 VIP PROFILE</u></b> 👑\n"
+            f"👑 <b><u>CROWN X MONEY VIP PROFILE</u></b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Name:</b> <i>{call.from_user.first_name}</i>\n"
             f"💎 <b>Credits:</b> {credits_display}\n"
             f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"<i>Powered & Created by CROWN 👑 M4</i>"
+            f"<i>Powered by CROWN & MONEY DEVELOPER 👑</i>"
         )
         bot.send_message(chat_id, info_text, parse_mode="HTML")
 
     else:
         prompts = {
             "ask_phone": "📱 <i>Send 10-digit Phone Number.</i>",
-            "ask_aadhar": "🪪 <i>Send 12-digit Number.</i>",
+            "ask_aadhar": "🪪 <i>Send 12-digit Aadhaar Number.</i>",
             "ask_pan": "📇 <i>Send 10-character PAN Card Number.</i>",
             "ask_gst": "🏢 <i>Send 15-character GSTIN Number.</i>",
             "ask_ifsc": "🏦 <i>Send Bank IFSC Code.</i>",
@@ -363,7 +363,7 @@ def handle_callbacks(call):
 
     bot.answer_callback_query(call.id)
 
-# ================= EXECUTE API ENGINE WITH ANTI-TIMEOUT & EXACT UI =================
+# ================= EXECUTE API ENGINE WITH STRICT SCRUBBING & BRANDING =================
 def execute_api_call(message, endpoint_url, query_label, search_val):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -372,123 +372,67 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         bot.reply_to(message, "❌ <i>Not enough credits. Contact Admin!</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "👑📡 <b><i>Extracting CROWN & M4 Live Database...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "👑📡 <b><i>Extracting CROWN & MONEY DEVELOPER Live Database...</i></b>", parse_mode="HTML")
 
     try:
-        r = requests.get(endpoint_url, timeout=15)
-        if r.status_code == 200:
-            try:
-                api_data = r.json()
-            except Exception:
-                api_data = {"response": r.text}
-        else:
-            api_data = {
-                "count": 1,
-                "data": [{
-                    "alt": "NA",
-                    "details": {
-                        "query": search_val,
-                        "status": "Success",
-                        "circle": "INDIA",
-                        "developer": "crown 👑 m4"
-                    },
-                    "mobile": search_val if len(search_val) == 10 else None,
-                    "uid": "40947383355"
-                }],
-                "success": True,
-                "owner": "crown 👑 m4",
-                "metadata": {
-                    "api_key": "CROWN_API_KEY",
-                    "key_owner": "crown 👑 m4",
-                    "key_usage": 103,
-                    "key_expiry": "2026-08-26",
-                    "key_enabled": True
-                },
-                "telegram": "@LIFExPAI",
-                "channel": "https://t.me/LIFExPAI",
-                "credit": "crown 👑 m4"
-            }
-    except Exception:
-        api_data = {
-            "count": 1,
-            "data": [{
-                "alt": "NA",
-                "details": {
-                    "query": search_val,
-                    "status": "Secure Node Connected",
-                    "circle": "INDIA",
-                    "developer": "crown 👑 m4"
-                },
-                "mobile": search_val if len(search_val) == 10 else None,
-                "uid": "40947383355"
-            }],
-            "success": True,
-            "owner": "crown 👑 m4",
-            "metadata": {
-                "api_key": "CROWN_API_KEY",
-                "key_owner": "crown 👑 m4",
-                "key_usage": 103,
-                "key_expiry": "2026-08-26",
-                "key_enabled": True
-            },
-            "telegram": "@LIFExPAI",
-            "channel": "https://t.me/LIFExPAI",
-            "credit": "crown 👑 m4"
-        }
+        r = requests.get(endpoint_url, timeout=25)
+        
+        if r.status_code == 404:
+            bot.edit_message_text(f"⚠️ <b>API Error (404):</b> <i>Target data not found or Tool is currently offline.</i>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+            return
+        elif r.status_code != 200:
+            bot.edit_message_text(f"❌ <b>API Error:</b> <code>{r.status_code}</code>\n<i>Server might be busy.</i>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+            return
+            
+        try:
+            api_response = r.json()
+        except:
+            api_response = {"response": r.text}
 
-    if isinstance(api_data, dict):
-        if "developer" in api_data: api_data["developer"] = "crown 👑 m4"
-        if "owner" in api_data: api_data["owner"] = "crown 👑 m4"
-        if "credit" in api_data: api_data["credit"] = "crown 👑 m4"
-        if "telegram" in api_data: api_data["telegram"] = "@LIFExPAI"
-        if "channel" in api_data: api_data["channel"] = "https://t.me/LIFExPAI"
+        if user_id != ADMIN_ID:
+            user["credits"] -= 1
 
-    result_json = json.dumps(api_data, indent=2, ensure_ascii=False)
+        user["lookups"] += 1
+        global total_lookups
+        total_lookups += 1
+        save_data()
 
-    if user_id != ADMIN_ID:
-        user["credits"] -= 1
+        result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
+        
+        # 🔴 EXTREME DEVELOPER NAME & LINK SCRUBBER 🔴
+        scrub_patterns = [
+            r"(?i)rohit\s*padhwe",
+            r"(?i)rohit",
+            r"(?i)@froxtdevil",
+            r"(?i)froxtdevil",
+            r"(?i)onlyhackerzon",
+            r"(?i)https?://t\.me/\S+"
+        ]
+        
+        for pattern in scrub_patterns:
+            result_json = re.sub(pattern, "CROWN & MONEY DEVELOPER", result_json)
 
-    user["lookups"] += 1
-    global total_lookups
-    total_lookups += 1
-    save_data()
+        if len(result_json) > 3500:
+            result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
 
-    scrub_patterns = [
-        (r"(?i)rohit\s*padhwe", "crown 👑 m4"),
-        (r"(?i)rohit", "crown 👑 m4"),
-        (r"(?i)froxtdevil", "crown 👑 m4"),
-        (r"(?i)onlyhackerzon", "crown 👑 m4"),
-        (r"https?://t\.me/\S+", "https://t.me/LIFExPAI")
-    ]
-    for pattern, replacement in scrub_patterns:
-        result_json = re.sub(pattern, replacement, result_json)
-
-    if len(result_json) > 3500:
-        result_json = result_json[:3500] + "\n... [DATA TRUNCATED]"
-
-    rem_credits = "Unlimited (VIP)" if user_id == ADMIN_ID else str(user['credits'])
-
-    text = f"""
-👑 <b>MONEY DEVELOPER INTEL SYSTEM</b> 👑
+        # 👑 CROWN & MONEY BRANDING MANDATORY AT TOP AND BOTTOM 👑
+        text = f"""
+👑 <b>CROWN 🏛️ MONEY DEVELOPER INTEL SYSTEM</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 <b>TARGET:</b> <i>{query_label}</i>
+🔍 <b>TARGET TYPE:</b> <i>{query_label}</i>
 📌 <b>TARGET VALUE:</b> <code>{search_val}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 <b><u>DATABASE OUTPUT:</u></b>
 <pre>{result_json}</pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 <b>USER:</b> @{message.from_user.username or message.from_user.first_name}
-💎 <b>REMAINING CREDITS:</b> {rem_credits}
-
-🚀 <b>OFFICIAL TELEGRAM:</b> @LIFExPAI
-📢 <b>JOIN CHANNEL:</b> https://t.me/LIFExPAI
-⚡ <b>POWERED & CREATED BY: CROWN 👑 M4</b>
+👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'}
+👑⚡ <b>POWERED BY: CROWN & MONEY DEVELOPER 👑</b>
 """
-    try:
-        bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML", disable_web_page_preview=False)
+        bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
-    except Exception:
-        bot.send_message(message.chat.id, text, parse_mode="HTML", disable_web_page_preview=False)
+
+    except Exception as e:
+        bot.edit_message_text(f"❌ <b>Execution Error:</b> <code>System Timeout or Error</code>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
 # ================= SMART QUERY ROUTER =================
 @bot.message_handler(func=lambda m: m.text and not m.text.startswith("/"))
@@ -496,13 +440,14 @@ def handle_queries(message):
     txt = message.text.strip()
     user_id = message.from_user.id
 
+    # 0. Handle Reply Keyboard Button Clicks
     if txt == "🇮🇳 Indian Number Lookup":
         user_steps[user_id] = "ask_phone"
         bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send 10-digit Phone Number.</i>", parse_mode="HTML")
         return
     elif txt == "🪪 Aadhaar Card Lookup":
         user_steps[user_id] = "ask_aadhar"
-        bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send 12-digit Number.</i>", parse_mode="HTML")
+        bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send 12-digit Aadhaar Number.</i>", parse_mode="HTML")
         return
     elif txt == "📧 Email Info Lookup":
         user_steps[user_id] = "ask_email"
@@ -532,13 +477,13 @@ def handle_queries(message):
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👑 <b><u>CROWN X M4 VIP PROFILE</u></b> 👑\n"
+            f"👑 <b><u>CROWN X MONEY VIP PROFILE</u></b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Name:</b> <i>{message.from_user.first_name}</i>\n"
             f"💎 <b>Credits:</b> {credits_display}\n"
             f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"<i>Powered & Created by CROWN 👑 M4</i>"
+            f"<i>Powered by CROWN & MONEY DEVELOPER 👑</i>"
         )
         bot.reply_to(message, info_text, parse_mode="HTML")
         return
@@ -546,6 +491,7 @@ def handle_queries(message):
     current_step = user_steps.get(user_id)
     user_steps[user_id] = None 
     
+    # 1. State-Based Routing
     if current_step:
         if current_step == "ask_phone":
             url = f"{BASE_URL_MAIN}/ph-tracker?token={TOKEN}&number={txt}"
@@ -553,7 +499,7 @@ def handle_queries(message):
             return
         elif current_step == "ask_aadhar":
             url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-            execute_api_call(message, url, "NUMBER RECORD", txt)
+            execute_api_call(message, url, "AADHAAR NUMBER", txt)
             return
         elif current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
@@ -624,13 +570,13 @@ def handle_queries(message):
             execute_api_call(message, url, "PINCODE INFO", txt)
             return
 
-    # Auto-Detect Routing
+    # 2. Auto-Detect Smart Routing
     if txt.isdigit() and len(txt) == 10:
         url = f"{BASE_URL_MAIN}/ph-tracker?token={TOKEN}&number={txt}"
         execute_api_call(message, url, "PHONE RECORD", txt)
     elif txt.isdigit() and len(txt) == 12:
         url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-        execute_api_call(message, url, "NUMBER RECORD", txt)
+        execute_api_call(message, url, "AADHAAR NUMBER", txt)
     elif re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
         url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
         execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
@@ -661,7 +607,6 @@ def handle_queries(message):
 
 # ================= RUN SERVER =================
 if __name__ == "__main__":
-    print("👑 CROWN X M4 VIP OSINT BOT & WEB GUI IS ONLINE!")
+    print("👑 CROWN X MONEY DEVELOPER VIP OSINT BOT & WEB GUI IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
-
