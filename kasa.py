@@ -9,12 +9,113 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from flask import Flask
 
-# ================= FLASK SERVER (24/7 Uptime) =================
+# ================= FLASK SERVER WITH MODERN WEB GUI =================
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "👑 MONEY DEVELOPER VIP OSINT System is Running 24/7!"
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MONEY DEVELOPER VIP OSINT - Dashboard</title>
+        <style>
+            body {
+                background-color: #0f172a;
+                color: #f8fafc;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            .card {
+                background: rgba(30, 41, 59, 0.75);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 40px;
+                border-radius: 18px;
+                box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.6);
+                text-align: center;
+                max-width: 480px;
+                width: 90%;
+            }
+            h1 {
+                color: #38bdf8;
+                font-size: 22px;
+                margin-bottom: 10px;
+                letter-spacing: 0.5px;
+            }
+            .status {
+                display: inline-block;
+                background: rgba(34, 197, 94, 0.15);
+                color: #4ade80;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 600;
+                margin-bottom: 20px;
+                border: 1px solid rgba(74, 222, 128, 0.3);
+            }
+            p {
+                color: #94a3b8;
+                font-size: 13.5px;
+                line-height: 1.6;
+                margin-bottom: 25px;
+            }
+            .stats {
+                display: flex;
+                justify-content: space-around;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-top: 20px;
+            }
+            .stat-box h3 {
+                margin: 0 0 5px 0;
+                color: #f8fafc;
+                font-size: 18px;
+            }
+            .stat-box span {
+                font-size: 11.5px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .footer {
+                margin-top: 20px;
+                font-size: 11px;
+                color: #475569;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>👑 MONEY DEVELOPER VIP OSINT</h1>
+            <div class="status">🟢 System Online & Secure</div>
+            <p>The VIP Node Terminal and 30+ OSINT Trackers are active and operating seamlessly 24/7 on cloud infrastructure.</p>
+            <div class="stats">
+                <div class="stat-box">
+                    <h3>30+</h3>
+                    <span>Live Tools</span>
+                </div>
+                <div class="stat-box">
+                    <h3>24/7</h3>
+                    <span>Uptime</span>
+                </div>
+                <div class="stat-box">
+                    <h3>VIP</h3>
+                    <span>Terminal</span>
+                </div>
+            </div>
+            <div class="footer">Powered by MONEY DEVELOPER 👑</div>
+        </div>
+    </body>
+    </html>
+    """
+    return html_content
 
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
@@ -210,7 +311,7 @@ def handle_callbacks(call):
     else:
         prompts = {
             "ask_phone": "📱 <i>Send 10-digit Phone Number.</i>",
-            "ask_aadhar": "🪪 <i>Send 12-digit Government ID Number.</i>",
+            "ask_aadhar": "🪪 <i>Send 12-digit Aadhaar Number.</i>",
             "ask_pan": "📇 <i>Send 10-character PAN Card Number.</i>",
             "ask_gst": "🏢 <i>Send 15-character GSTIN Number.</i>",
             "ask_ifsc": "🏦 <i>Send Bank IFSC Code.</i>",
@@ -272,7 +373,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 
         result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
         
-        # 🔴 EXTREME DEVELOPER NAME SCRUBBER (REPLACES ROHIT/FROXTDEVIL) 🔴
+        # 🔴 EXTREME DEVELOPER NAME SCRUBBER 🔴
         scrub_patterns = [
             r"(?i)rohit\s*padhwe",
             r"(?i)rohit",
@@ -286,14 +387,11 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         if len(result_json) > 3500:
             result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
 
-        date = datetime.datetime.now().strftime("%d-%m-%Y %I:%M %p")
-        rem_credits = "♾️ Unlimited" if user_id == ADMIN_ID else user["credits"]
-
         text = f"""
 🏛️ <b>MONEY DEVELOPER INTEL SYSTEM</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 <b>TARGET:</b> <i>{query_label}</i>
-📌 <b>QUERY:</b> <code>{search_val}</code>
+📌 <b>AADHAAR NUMBER:</b> <code>{search_val}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 <b><u>DATABASE OUTPUT:</u></b>
 <pre>{result_json}</pre>
@@ -307,7 +405,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
     except Exception as e:
         bot.edit_message_text(f"❌ <b>Execution Error:</b> <code>System Timeout or Error</code>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
-# ================= SMART QUERY ROUTER (ALL ENDPOINTS INTEGRATED) =================
+# ================= SMART QUERY ROUTER =================
 @bot.message_handler(func=lambda m: m.text and not m.text.startswith("/"))
 def handle_queries(message):
     txt = message.text.strip()
@@ -325,7 +423,7 @@ def handle_queries(message):
             return
         elif current_step == "ask_aadhar":
             url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-            execute_api_call(message, url, "AADHAAR / ID RECORD", txt)
+            execute_api_call(message, url, "आधार नंबर (AADHAAR NUMBER)", txt)
             return
         elif current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
@@ -402,7 +500,7 @@ def handle_queries(message):
         execute_api_call(message, url, "PHONE RECORD", txt)
     elif txt.isdigit() and len(txt) == 12:
         url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
-        execute_api_call(message, url, "AADHAAR / ID RECORD", txt)
+        execute_api_call(message, url, "आधार नंबर (AADHAAR NUMBER)", txt)
     elif re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
         url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
         execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
@@ -433,6 +531,6 @@ def handle_queries(message):
 
 # ================= RUN SERVER =================
 if __name__ == "__main__":
-    print("👑 MONEY DEVELOPER VIP OSINT BOT IS ONLINE!")
+    print("👑 MONEY DEVELOPER VIP OSINT BOT & WEB GUI IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
