@@ -35,11 +35,15 @@ BASE_URL_MAIN = "https://xpolitesupgrade-api.darrify-api.workers.dev/api"
 BASE_URL_OSINT = "https://osint-api-delta.vercel.app/api"
 
 DATA_FILE = "users_data.json"
-START_PHOTO_PATH = "89187_2.jpg"  # ⚠️ मेक श्योर ये फोटो सर्वर/फोल्डर में मौजूद हो!
+
+# 🔴 PHOTO CONFIGURATION 🔴
+START_PHOTO_PATH = "89187_2.jpg" 
+# अगर फाइल नहीं मिलेगी, तो बोट अपने आप यह प्रीमियम हैकर फोटो यूज़ करेगा:
+FALLBACK_PHOTO_URL = "https://i.ibb.co/3s1h8B9/hacker-osint.jpg"
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 total_lookups = 0
-user_steps = {}  # Smart State Tracking
+user_steps = {}
 
 # ================= DATA PERSISTENCE =================
 def load_data():
@@ -98,12 +102,14 @@ def identity_menu():
     markup.add(
         InlineKeyboardButton("📱 Phone Number", callback_data="ask_phone"),
         InlineKeyboardButton("🪪 Aadhaar", callback_data="ask_aadhar"),
-        InlineKeyboardButton("📇 PAN Card", callback_data="ask_pan"),
+        InlineKeyboardButton("📇 PAN Card", callback_data="ask_pan")
+    )
+    markup.add(
         InlineKeyboardButton("🚗 Vehicle RC", callback_data="ask_veh"),
         InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst"),
         InlineKeyboardButton("🏦 IFSC Bank", callback_data="ask_ifsc")
     )
-    markup.add(InlineKeyboardButton("🔙 Back to Main", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
 
 def social_menu():
@@ -111,61 +117,72 @@ def social_menu():
     markup.add(
         InlineKeyboardButton("📸 Insta Profile", callback_data="ask_ig_prof"),
         InlineKeyboardButton("⬇️ Insta Download", callback_data="ask_ig_dl"),
-        InlineKeyboardButton("👻 Snapchat Info", callback_data="ask_snap"),
+        InlineKeyboardButton("👻 Snapchat Info", callback_data="ask_snap")
+    )
+    markup.add(
         InlineKeyboardButton("💻 Github Repos", callback_data="ask_git"),
         InlineKeyboardButton("📧 Email Info", callback_data="ask_email"),
         InlineKeyboardButton("🎮 BGMI Player", callback_data="ask_bgmi")
     )
-    markup.add(InlineKeyboardButton("🔙 Back to Main", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
 
 def geo_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
         InlineKeyboardButton("🌐 IP Tracker", callback_data="ask_ip"),
-        InlineKeyboardButton("📍 Pincode Info", callback_data="ask_pin"),
+        InlineKeyboardButton("📍 Pincode Info", callback_data="ask_pin")
+    )
+    markup.add(
         InlineKeyboardButton("📱 IMEI Info", callback_data="ask_imei"),
         InlineKeyboardButton("🗺️ Country Info", callback_data="ask_country")
     )
-    markup.add(InlineKeyboardButton("🔙 Back to Main", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
 
 def ai_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
         InlineKeyboardButton("💖 AI Girlfriend", callback_data="ask_aigf"),
-        InlineKeyboardButton("🎨 AI Image Gen", callback_data="ask_aiimg"),
-        InlineKeyboardButton("✨ Prompt Gen", callback_data="ask_prompt")
+        InlineKeyboardButton("🎨 AI Image Gen", callback_data="ask_aiimg")
     )
-    markup.add(InlineKeyboardButton("🔙 Back to Main", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("✨ Prompt Gen", callback_data="ask_prompt"))
+    markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
 
-# ================= START COMMAND =================
+# ================= START COMMAND (VIP BOARD) =================
 @bot.message_handler(commands=["start"])
 def start(message):
     get_user(message.from_user.id)
-    user_steps[message.from_user.id] = None # Reset state
+    user_steps[message.from_user.id] = None 
 
+    # 🔴 VIP TERMINAL BOARD UI 🔴
     welcome_text = (
-        f"✨ <b><i>MONEY DEVELOPER 👑 ULTIMATE OSINT</i></b> ✨\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"👋 <i>Welcome,</i> <b>{message.from_user.first_name}</b>!\n\n"
-        f"🛡️ <b><u>ADVANCED DATABASE SYSTEM</u></b> 🛡️\n"
-        f"<i>Connected to 30+ Live Verification Nodes</i>\n\n"
-        f"⚡ <i>Select a category below to deploy tools:</i>\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"👨‍💻 <i>Owned & Managed by</i> <b>MONEY DEVELOPER 👑</b>"
+        f"╔════════════════════════════════╗\n"
+        f"   👑 <b>MONEY DEVELOPER VIP OSINT</b> 👑\n"
+        f"╚════════════════════════════════╝\n\n"
+        f"👤 <b>USER INFO:</b>\n"
+        f" ┣ <b>Name:</b> <i>{message.from_user.first_name}</i>\n"
+        f" ┗ <b>Status:</b> 🟢 <i>Connected to Database</i>\n\n"
+        f"⚡ <b>SYSTEM CAPABILITIES:</b>\n"
+        f" ┣ 30+ Live Verification Nodes\n"
+        f" ┣ Govt. ID & Social Media Tracker\n"
+        f" ┗ Geo-Location & AI Integration\n\n"
+        f"👇 <b><i>ACCESS THE TERMINAL BELOW:</i></b>\n"
     )
 
     try:
+        # Photo Check Logic (Fix for your missing photo)
         if os.path.exists(START_PHOTO_PATH):
             with open(START_PHOTO_PATH, "rb") as photo:
                 msg = bot.send_photo(message.chat.id, photo, caption=welcome_text, reply_markup=main_menu(), parse_mode="HTML")
         else:
-            msg = bot.send_message(message.chat.id, welcome_text + "\n\n<i>(⚠️ Photo missing on server!)</i>", reply_markup=main_menu(), parse_mode="HTML")
+            # If local photo is not found, use a fallback image URL instead of looking ugly
+            msg = bot.send_photo(message.chat.id, FALLBACK_PHOTO_URL, caption=welcome_text, reply_markup=main_menu(), parse_mode="HTML")
+        
         auto_delete(msg.chat.id, msg.message_id)
     except Exception as e:
-        bot.send_message(message.chat.id, f"Error: {e}")
+        bot.send_message(message.chat.id, welcome_text + f"\n\n<i>(Image Error: {e})</i>", reply_markup=main_menu(), parse_mode="HTML")
 
 # ================= INLINE CALLBACK HANDLER =================
 @bot.callback_query_handler(func=lambda call: True)
@@ -188,14 +205,15 @@ def handle_callbacks(call):
     # Profile
     elif call.data == "profile":
         user = get_user(user_id)
-        credits_display = "♾️ <b>Unlimited (Owner)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
+        credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👤 <b><u>USER VIP PROFILE</u></b>\n"
+            f"👤 <b><u>YOUR VIP PROFILE</u></b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Name:</b> <i>{call.from_user.first_name}</i>\n"
             f"💎 <b>Credits:</b> {credits_display}\n"
-            f"🔍 <b>Total Queries:</b> <b>{user['lookups']}</b>\n"
-            f"━━━━━━━━━━━━━━━━━━"
+            f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"<i>Powered by MONEY DEVELOPER</i>"
         )
         bot.send_message(chat_id, info_text, parse_mode="HTML")
 
@@ -219,7 +237,7 @@ def handle_callbacks(call):
             "ask_imei": "📱 <i>Send 15-digit IMEI Number.</i>",
             "ask_country": "🗺️ <i>Send Country Name (e.g., india).</i>",
             "ask_aigf": "💖 <i>Send a message to your AI GF!</i>",
-            "ask_aiimg": "🎨 <i>Send prompt to generate Image (e.g., flying car).</i>",
+            "ask_aiimg": "🎨 <i>Send prompt to generate Image.</i>",
             "ask_prompt": "✨ <i>Send a topic to generate a detailed prompt.</i>"
         }
         
@@ -238,7 +256,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         bot.reply_to(message, "❌ <i>Not enough credits. Contact Admin!</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "📡 <b><i>Extracting Live MONEY DEVELOPER Database Records...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "📡 <b><i>Extracting MONEY DEVELOPER Live Database...</i></b>", parse_mode="HTML")
 
     try:
         r = requests.get(endpoint_url, timeout=25)
@@ -261,11 +279,17 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 
         result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
         
-        # 🔴 HACKS TO REPLACE ANY UNWANTED NAMES/CREDITS WITH "MONEY DEVELOPER"
-        result_json = result_json.replace("Rohit", "MONEY DEVELOPER")
-        result_json = result_json.replace("rohit", "MONEY DEVELOPER")
-        # अगर कोई और नाम API में आ रहा हो, उसे भी यहाँ जोड़ सकते हैं:
-        # result_json = result_json.replace("OtherName", "MONEY DEVELOPER")
+        # 🔴 EXTREME DEVELOPER NAME SCRUBBER 🔴
+        # यह किसी भी स्पेलिंग (ROHIT, rohit, Rohit Padhwe, @FroxtDevil) को स्कैन करके मनी डेवलपर बना देगा
+        scrub_patterns = [
+            r"(?i)rohit\s*padhwe",
+            r"(?i)rohit",
+            r"(?i)@froxtdevil",
+            r"(?i)froxtdevil"
+        ]
+        
+        for pattern in scrub_patterns:
+            result_json = re.sub(pattern, "MONEY DEVELOPER", result_json)
 
         if len(result_json) > 3500:
             result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
@@ -284,7 +308,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 <pre>{result_json}</pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'} | 💎 <b>CRD:</b> <code>{rem_credits}</code>
-⚡ <b>POWERED BY MONEY DEVELOPER 👑</b>
+⚡ <b>OWNER: MONEY DEVELOPER 👑</b>
 """
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
@@ -299,10 +323,10 @@ def handle_queries(message):
     user_id = message.from_user.id
     current_step = user_steps.get(user_id)
     
-    # Reset step after getting input
+    # Reset step
     user_steps[user_id] = None 
     
-    # 1. State-Based Routing (If user clicked a specific button)
+    # 1. State-Based Routing
     if current_step:
         if current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
@@ -337,7 +361,7 @@ def handle_queries(message):
             execute_api_call(message, url, "PROMPT GEN", txt)
             return
 
-    # 2. Auto-Detect Routing (If user directly sends data without clicking buttons)
+    # 2. Auto-Detect Routing
     clean_rc = re.sub(r'[^A-Z0-9]', '', txt.upper())
     
     if re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
@@ -368,7 +392,7 @@ def handle_queries(message):
         url = f"{BASE_URL_MAIN}/ip-master?token={TOKEN}&ip={txt}"
         execute_api_call(message, url, "NETWORK IP", txt)
     elif re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", txt.upper()):
-        url = f"{BASE_URL_MAIN}/ifsc-master?token={TOKEN}&ifsc={txt.upper()}",
+        url = f"{BASE_URL_MAIN}/ifsc-master?token={TOKEN}&ifsc={txt.upper()}"
         execute_api_call(message, url, "BANK IFSC", txt.upper())
     elif re.match(r"^[A-Z]{2}\d{1,2}[A-Z]{0,3}\d{1,4}$", clean_rc):
         url = f"{BASE_URL_MAIN}/vehicle-master?token={TOKEN}&rc={clean_rc}"
@@ -382,4 +406,3 @@ if __name__ == "__main__":
     print("👑 MONEY DEVELOPER VIP OSINT BOT IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
-
