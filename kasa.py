@@ -363,7 +363,7 @@ def handle_callbacks(call):
 
     bot.answer_callback_query(call.id)
 
-# ================= EXECUTE API ENGINE WITH MANDATORY CROWN & MONEY BRANDING =================
+# ================= EXECUTE API ENGINE WITH STRICT SCRUBBING & BRANDING =================
 def execute_api_call(message, endpoint_url, query_label, search_val):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -399,12 +399,14 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 
         result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
         
-        # 🔴 EXTREME DEVELOPER NAME SCRUBBER 🔴
+        # 🔴 EXTREME DEVELOPER NAME & LINK SCRUBBER 🔴
         scrub_patterns = [
             r"(?i)rohit\s*padhwe",
             r"(?i)rohit",
             r"(?i)@froxtdevil",
-            r"(?i)froxtdevil"
+            r"(?i)froxtdevil",
+            r"(?i)onlyhackerzon",
+            r"(?i)https?://t\.me/\S+"
         ]
         
         for pattern in scrub_patterns:
@@ -413,12 +415,12 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         if len(result_json) > 3500:
             result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
 
-        # 👑 CROWN & MONEY BRANDING MANDATORY AT TOP AND BOTTOM FOR ALL API RESPONSES 👑
+        # 👑 CROWN & MONEY BRANDING MANDATORY AT TOP AND BOTTOM 👑
         text = f"""
 👑 <b>CROWN 🏛️ MONEY DEVELOPER INTEL SYSTEM</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 <b>TARGET:</b> <i>{query_label}</i>
-📌 <b>QUERY VALUE:</b> <code>{search_val}</code>
+🔍 <b>TARGET TYPE:</b> <i>{query_label}</i>
+📌 <b>TARGET VALUE:</b> <code>{search_val}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 <b><u>DATABASE OUTPUT:</u></b>
 <pre>{result_json}</pre>
@@ -608,4 +610,3 @@ if __name__ == "__main__":
     print("👑 CROWN X MONEY DEVELOPER VIP OSINT BOT & WEB GUI IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
-()
