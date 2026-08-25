@@ -20,7 +20,7 @@ def home():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>👑 CROWN X MONEY DEVELOPER VIP OSINT - Dashboard</title>
+        <title>👑 CROWN X M4 VIP OSINT - Dashboard</title>
         <style>
             body {
                 background-color: #0f172a;
@@ -93,7 +93,7 @@ def home():
     </head>
     <body>
         <div class="card">
-            <h1>👑 CROWN X MONEY DEVELOPER VIP OSINT</h1>
+            <h1>👑 CROWN X M4 VIP OSINT</h1>
             <div class="status">🟢 System Online & Secure</div>
             <p>The VIP Node Terminal and 30+ OSINT Trackers are active and operating seamlessly 24/7 on cloud infrastructure.</p>
             <div class="stats">
@@ -110,7 +110,7 @@ def home():
                     <span>Terminal</span>
                 </div>
             </div>
-            <div class="footer">Powered by CROWN & MONEY DEVELOPER 👑</div>
+            <div class="footer">Powered & Created by CROWN 👑 M4</div>
         </div>
     </body>
     </html>
@@ -280,7 +280,7 @@ def start(message):
     user_steps[message.from_user.id] = None 
 
     welcome_text = (
-        f"<b>👑 CROWN X MONEY DEVELOPER VIP OSINT 👑</b>\n"
+        f"<b>👑 CROWN X M4 VIP OSINT 👑</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"👋 Welcome to the Database, <b>{message.from_user.first_name}</b>!\n\n"
         f"👤 <b>USER DASHBOARD</b>\n"
@@ -324,13 +324,13 @@ def handle_callbacks(call):
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👑 <b><u>CROWN X MONEY VIP PROFILE</u></b> 👑\n"
+            f"👑 <b><u>CROWN X M4 VIP PROFILE</u></b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Name:</b> <i>{call.from_user.first_name}</i>\n"
             f"💎 <b>Credits:</b> {credits_display}\n"
             f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"<i>Powered by CROWN & MONEY DEVELOPER 👑</i>"
+            f"<i>Powered & Created by CROWN 👑 M4</i>"
         )
         bot.send_message(chat_id, info_text, parse_mode="HTML")
 
@@ -363,7 +363,7 @@ def handle_callbacks(call):
 
     bot.answer_callback_query(call.id)
 
-# ================= EXECUTE API ENGINE WITH STRICT SCRUBBING & BRANDING =================
+# ================= EXECUTE API ENGINE WITH STRICT JSON & FOOTER BRANDING =================
 def execute_api_call(message, endpoint_url, query_label, search_val):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -372,7 +372,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         bot.reply_to(message, "❌ <i>Not enough credits. Contact Admin!</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "👑📡 <b><i>Extracting CROWN & MONEY DEVELOPER Live Database...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "👑📡 <b><i>Extracting CROWN & M4 Live Database...</i></b>", parse_mode="HTML")
 
     try:
         r = requests.get(endpoint_url, timeout=25)
@@ -384,10 +384,21 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
             bot.edit_message_text(f"❌ <b>API Error:</b> <code>{r.status_code}</code>\n<i>Server might be busy.</i>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
             return
             
+        # Parse JSON and force branding inside JSON keys/values
         try:
-            api_response = r.json()
+            api_data = r.json()
+            if isinstance(api_data, dict):
+                # Force specific fields if they exist in API response
+                if "developer" in api_data: api_data["developer"] = "crown 👑 m4"
+                if "owner" in api_data: api_data["owner"] = "crown 👑 m4"
+                if "credit" in api_data: api_data["credit"] = "crown 👑 m4"
+                if "telegram" in api_data: api_data["telegram"] = "@LIFExPAI"
+                if "channel" in api_data: api_data["channel"] = "https://t.me/LIFExPAI"
+                if "metadata" in api_data and isinstance(api_data["metadata"], dict):
+                    if "key_owner" in api_data["metadata"]: api_data["metadata"]["key_owner"] = "crown 👑 m4"
+            result_json = json.dumps(api_data, indent=2, ensure_ascii=False)
         except:
-            api_response = {"response": r.text}
+            result_json = json.dumps({"response": r.text}, indent=2, ensure_ascii=False)
 
         if user_id != ADMIN_ID:
             user["credits"] -= 1
@@ -397,36 +408,40 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         total_lookups += 1
         save_data()
 
-        result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
-        
-        # 🔴 EXTREME DEVELOPER NAME & LINK SCRUBBER 🔴
+        # 🔴 EXTREME SCRUBBER TO REMOVE OTHER HACKERS & LINKS 🔴
         scrub_patterns = [
-            r"(?i)rohit\s*padhwe",
-            r"(?i)rohit",
-            r"(?i)@froxtdevil",
-            r"(?i)froxtdevil",
-            r"(?i)onlyhackerzon",
-            r"(?i)https?://t\.me/\S+"
+            (r"(?i)rohit\s*padhwe", "crown 👑 m4"),
+            (r"(?i)rohit", "crown 👑 m4"),
+            (r"(?i)froxtdevil", "crown 👑 m4"),
+            (r"(?i)onlyhackerzon", "crown 👑 m4"),
+            (r"https?://t\.me/\S+", "https://t.me/LIFExPAI")
         ]
         
-        for pattern in scrub_patterns:
-            result_json = re.sub(pattern, "CROWN & MONEY DEVELOPER", result_json)
+        for pattern, replacement in scrub_patterns:
+            result_json = re.sub(pattern, replacement, result_json)
 
         if len(result_json) > 3500:
             result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
 
-        # 👑 CROWN & MONEY BRANDING MANDATORY AT TOP AND BOTTOM 👑
+        # Remaining Credits Display
+        rem_credits = "Unlimited (VIP)" if user_id == ADMIN_ID else str(user['credits'])
+
+        # 👑 EXACT MATCH FOOTER FORMATTING AS REQUESTED 👑
         text = f"""
-👑 <b>CROWN 🏛️ MONEY DEVELOPER INTEL SYSTEM</b> 👑
+👑 <b>MONEY DEVELOPER INTEL SYSTEM</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 <b>TARGET TYPE:</b> <i>{query_label}</i>
-📌 <b>TARGET VALUE:</b> <code>{search_val}</code>
+🔍 <b>TARGET:</b> <i>{query_label}</i>
+📌 <b>AADHAAR NUMBER:</b> <code>{search_val}</i></code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 <b><u>DATABASE OUTPUT:</u></b>
 <pre>{result_json}</pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'}
-👑⚡ <b>POWERED BY: CROWN & MONEY DEVELOPER 👑</b>
+👤 <b>USER:</b> @{message.from_user.username or message.from_user.first_name}
+💎 <b>REMAINING CREDITS:</b> {rem_credits}
+
+🚀 <b>OFFICIAL TELEGRAM:</b> @LIFExPAI
+📢 <b>JOIN CHANNEL:</b> https://t.me/LIFExPAI
+⚡ <b>POWERED & CREATED BY: CROWN 👑 M4</b>
 """
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
@@ -477,13 +492,13 @@ def handle_queries(message):
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👑 <b><u>CROWN X MONEY VIP PROFILE</u></b> 👑\n"
+            f"👑 <b><u>CROWN X M4 VIP PROFILE</u></b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🆔 <b>Name:</b> <i>{message.from_user.first_name}</i>\n"
             f"💎 <b>Credits:</b> {credits_display}\n"
             f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"<i>Powered by CROWN & MONEY DEVELOPER 👑</i>"
+            f"<i>Powered & Created by CROWN 👑 M4</i>"
         )
         bot.reply_to(message, info_text, parse_mode="HTML")
         return
@@ -607,6 +622,6 @@ def handle_queries(message):
 
 # ================= RUN SERVER =================
 if __name__ == "__main__":
-    print("👑 CROWN X MONEY DEVELOPER VIP OSINT BOT & WEB GUI IS ONLINE!")
+    print("👑 CROWN X M4 VIP OSINT BOT & WEB GUI IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
