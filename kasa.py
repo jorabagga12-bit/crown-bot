@@ -14,7 +14,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "👑 Crown M4 VIP OSINT System is Running 24/7!"
+    return "👑 MONEY DEVELOPER VIP OSINT System is Running 24/7!"
 
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
@@ -147,14 +147,14 @@ def start(message):
     user_steps[message.from_user.id] = None # Reset state
 
     welcome_text = (
-        f"✨ <b><i>CROWN 👑 M4 ULTIMATE OSINT</i></b> ✨\n"
+        f"✨ <b><i>MONEY DEVELOPER 👑 ULTIMATE OSINT</i></b> ✨\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"👋 <i>Welcome,</i> <b>{message.from_user.first_name}</b>!\n\n"
         f"🛡️ <b><u>ADVANCED DATABASE SYSTEM</u></b> 🛡️\n"
         f"<i>Connected to 30+ Live Verification Nodes</i>\n\n"
         f"⚡ <i>Select a category below to deploy tools:</i>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"👨‍💻 <i>Owned & Managed by</i> <b>CROWN 👑 M4</b>"
+        f"👨‍💻 <i>Owned & Managed by</i> <b>MONEY DEVELOPER 👑</b>"
     )
 
     try:
@@ -238,7 +238,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         bot.reply_to(message, "❌ <i>Not enough credits. Contact Admin!</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "📡 <b><i>Extracting Live CROWN M4 Database Records...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "📡 <b><i>Extracting Live MONEY DEVELOPER Database Records...</i></b>", parse_mode="HTML")
 
     try:
         r = requests.get(endpoint_url, timeout=25)
@@ -260,6 +260,13 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         save_data()
 
         result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
+        
+        # 🔴 HACKS TO REPLACE ANY UNWANTED NAMES/CREDITS WITH "MONEY DEVELOPER"
+        result_json = result_json.replace("Rohit", "MONEY DEVELOPER")
+        result_json = result_json.replace("rohit", "MONEY DEVELOPER")
+        # अगर कोई और नाम API में आ रहा हो, उसे भी यहाँ जोड़ सकते हैं:
+        # result_json = result_json.replace("OtherName", "MONEY DEVELOPER")
+
         if len(result_json) > 3500:
             result_json = result_json[:3500] + "\n... [DATA TRUNCATED FOR DISPLAY]"
 
@@ -267,7 +274,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
         rem_credits = "♾️ Unlimited" if user_id == ADMIN_ID else user["credits"]
 
         text = f"""
-🏛️ <b><i>CROWN 👑 M4 INTEL SYSTEM</i></b> 🏛️
+🏛️ <b><i>MONEY DEVELOPER 👑 INTEL SYSTEM</i></b> 🏛️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 <b>TARGET:</b> <i>{query_label}</i>
 📌 <b>QUERY:</b> <code>{search_val}</code>
@@ -277,7 +284,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 <pre>{result_json}</pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>USER:</b> @{message.from_user.username or 'NoUsername'} | 💎 <b>CRD:</b> <code>{rem_credits}</code>
-⚡ <b>POWERED BY CROWN 👑 M4</b>
+⚡ <b>POWERED BY MONEY DEVELOPER 👑</b>
 """
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
@@ -361,7 +368,7 @@ def handle_queries(message):
         url = f"{BASE_URL_MAIN}/ip-master?token={TOKEN}&ip={txt}"
         execute_api_call(message, url, "NETWORK IP", txt)
     elif re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", txt.upper()):
-        url = f"{BASE_URL_MAIN}/ifsc-master?token={TOKEN}&ifsc={txt.upper()}"
+        url = f"{BASE_URL_MAIN}/ifsc-master?token={TOKEN}&ifsc={txt.upper()}",
         execute_api_call(message, url, "BANK IFSC", txt.upper())
     elif re.match(r"^[A-Z]{2}\d{1,2}[A-Z]{0,3}\d{1,4}$", clean_rc):
         url = f"{BASE_URL_MAIN}/vehicle-master?token={TOKEN}&rc={clean_rc}"
@@ -372,6 +379,7 @@ def handle_queries(message):
 
 # ================= RUN SERVER =================
 if __name__ == "__main__":
-    print("👑 CROWN M4 VIP OSINT BOT IS ONLINE!")
+    print("👑 MONEY DEVELOPER VIP OSINT BOT IS ONLINE!")
     keep_alive()
     bot.infinity_polling()
+
