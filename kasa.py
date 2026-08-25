@@ -28,8 +28,10 @@ def keep_alive():
 BOT_TOKEN = "8887168683:AAFU5xQN389gI1WSOhEom41FY0I4-fRy3fs"
 ADMIN_ID = 8407090614
 
-# APIs Configuration (यहाँ 'demo' की जगह अपनी असली की डाल सकता है अगर बदलनी हो)
-OSINT_KEY = "demo" 
+# APIs Configuration
+TOKEN = "xpol_Demo_combo_a811c2fb"
+OSINT_KEY = "demo"
+BASE_URL_MAIN = "https://xpolitesupgrade-api.darrify-api.workers.dev/api"
 BASE_URL_OSINT = "https://osint-api-delta.vercel.app/api"
 
 DATA_FILE = "users_data.json"
@@ -93,6 +95,10 @@ def main_menu():
 
 def identity_menu():
     markup = InlineKeyboardMarkup(row_width=2)
+    markup.add(
+        InlineKeyboardButton("📱 Phone Number", callback_data="ask_phone"),
+        InlineKeyboardButton("🪪 Aadhaar Info", callback_data="ask_aadhar")
+    )
     markup.add(
         InlineKeyboardButton("📇 PAN Card", callback_data="ask_pan"),
         InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst")
@@ -203,6 +209,8 @@ def handle_callbacks(call):
 
     else:
         prompts = {
+            "ask_phone": "📱 <i>Send 10-digit Phone Number.</i>",
+            "ask_aadhar": "🪪 <i>Send 12-digit Government ID Number.</i>",
             "ask_pan": "📇 <i>Send 10-character PAN Card Number.</i>",
             "ask_gst": "🏢 <i>Send 15-character GSTIN Number.</i>",
             "ask_ifsc": "🏦 <i>Send Bank IFSC Code.</i>",
@@ -309,9 +317,17 @@ def handle_queries(message):
     # Reset step
     user_steps[user_id] = None 
     
-    # 1. State-Based Routing (Using all user endpoints cleanly)
+    # 1. State-Based Routing
     if current_step:
-        if current_step == "ask_ig_prof":
+        if current_step == "ask_phone":
+            url = f"{BASE_URL_MAIN}/ph-tracker?token={TOKEN}&number={txt}"
+            execute_api_call(message, url, "PHONE RECORD", txt)
+            return
+        elif current_step == "ask_aadhar":
+            url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
+            execute_api_call(message, url, "AADHAAR / ID RECORD", txt)
+            return
+        elif current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
             execute_api_call(message, url, "INSTAGRAM PROFILE V1", txt)
             return
@@ -381,7 +397,13 @@ def handle_queries(message):
             return
 
     # 2. Auto-Detect Smart Routing
-    if re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
+    if txt.isdigit() and len(txt) == 10:
+        url = f"{BASE_URL_MAIN}/ph-tracker?token={TOKEN}&number={txt}"
+        execute_api_call(message, url, "PHONE RECORD", txt)
+    elif txt.isdigit() and len(txt) == 12:
+        url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
+        execute_api_call(message, url, "AADHAAR / ID RECORD", txt)
+    elif re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
         url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
         execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
     elif re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", txt.upper()):
