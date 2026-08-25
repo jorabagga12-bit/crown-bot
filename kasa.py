@@ -7,6 +7,23 @@ import time
 import requests
 import telebot
 from telebot.types import KeyboardButton, ReplyKeyboardMarkup
+from flask import Flask
+
+# ================= FLASK SERVER (For 24/7 Uptime) =================
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "👑 Crown M4 Bot is Alive & Running 24/7!"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+
+def keep_alive():
+    t = threading.Thread(target=run_flask)
+    t.daemon = True
+    t.start()
 
 # ================= CONFIG =================
 
@@ -219,7 +236,6 @@ def handle_number(message):
         save_data()
 
         if isinstance(api_response, dict):
-            # 👑 Branded completely to Crown
             api_response["owner"] = "crown 👑 m4"
             if "metadata" in api_response and isinstance(
                 api_response["metadata"], dict
@@ -232,8 +248,6 @@ def handle_number(message):
             ):
                 for item in api_response["result"]:
                     if isinstance(item, dict):
-                        if "aadhar" in item:
-                            item["aadhar"] = "[Redacted]"
                         item["telegram"] = "@LIFExPAI"
                         item["channel"] = "https://t.me/LIFExPAI"
                         item["credit"] = "crown 👑 m4"
@@ -432,5 +446,6 @@ def handle_all_messages(message):
 # ================= RUN =================
 
 if __name__ == "__main__":
-    print("🚀 CROWN M4 BOT STARTED")
+    print("👑 CROWN M4 BOT STARTED WITH KEEP-ALIVE SERVER")
+    keep_alive()  # Flask सर्वर बैकग्राउंड में चालू हो जाएगा
     bot.infinity_polling()
