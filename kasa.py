@@ -99,12 +99,12 @@ def auto_delete(chat_id, message_id):
 # Extract direct media URLs recursively from deep JSON responses
 def extract_media_url(data):
     if isinstance(data, str):
-        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", "video", "stream", "download", "terabox"]):
+        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", "video", "stream", "download", "terabox"]):
             return data
         return None
 
     if isinstance(data, dict):
-        priority_keys = ["stream_url", "video_url", "download_url", "play_url", "media_url", "direct_link", "url", "link"]
+        priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", "image_url", "direct_link", "url", "link"]
         for key in priority_keys:
             val = data.get(key)
             if isinstance(val, str) and val.startswith("http"):
@@ -302,7 +302,7 @@ def handle_callbacks(call):
             "ask_tb_s1": "🎬 <b>Send Terabox Video Link for Stream:</b>",
             "ask_tb_v2": "📥 <b>Send Terabox Link for High-Speed Download:</b>",
             
-            "ask_ig_dl": "⬇️ <b>Send Instagram Reel or Video Link:</b>",
+            "ask_ig_dl": "⬇️ <b>Send Instagram Reel or Video Link:</b>\n<i>(e.g., https://www.instagram.com/reel/...)</i>",
             "ask_ig_best": "👤 <b>Enter Instagram Username:</b>",
             "ask_ig_media": "📸 <b>Enter Instagram Username for Media:</b>",
             "ask_ig_posts": "📝 <b>Enter Instagram Username for Posts:</b>",
@@ -385,7 +385,132 @@ def execute_terabox_call(message, search_val):
     else:
         bot.edit_message_text("❌ <b>Could not extract stream.</b> Please verify your Terabox URL and try again.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
-# ================= GENERAL API & MEDIA DISCOVERY ENGINE =================
+# ================= FIXED & DEDICATED INSTAGRAM HANDLER =================
+def execute_instagram_call(message, action_type, search_val):
+    user_id = message.from_user.id
+    user = get_user(user_id)
+
+    if user_id != ADMIN_ID and user["credits"] < 1:
+        bot.reply_to(message, "❌ <i>Credits exhausted. Contact @team_lifexy</i>", parse_mode="HTML")
+        return
+
+    wait_msg = bot.reply_to(message, "📸⚡ <b><i>Fetching Instagram media...</i></b>", parse_mode="HTML")
+
+    txt_clean = search_val.strip()
+    is_url = "instagram.com" in txt_clean.lower() or "instagr.am" in txt_clean.lower()
+    clean_username = txt_clean.replace("@", "").split("/")[-1].split("?")[0] if not is_url else ""
+
+    endpoints_to_try = []
+
+    if is_url:
+        # If user passed an Instagram Post/Reel URL
+        endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-download", {"key": OSINT_KEY, "type": "download", "url": txt_clean}))
+        endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-posts-v2", {"key": OSINT_KEY, "type": "posts", "url": txt_clean}))
+    else:
+        # If user passed Username instead of URL
+        if action_type == "download":
+            action_type = "profile"
+        
+        if action_type in ["profile", "best"]:
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-best-v1", {"key": OSINT_KEY, "type": "best", "username": clean_username}))
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-media-v1", {"key": OSINT_KEY, "type": "media", "username": clean_username}))
+        elif action_type == "posts":
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-posts-v2", {"key": OSINT_KEY, "type": "posts", "username": clean_username}))
+        else:
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-media-v1", {"key": OSINT_KEY, "type": "media", "username": clean_username}))
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-best-v1", {"key": OSINT_KEY, "type": "best", "username": clean_username}))
+
+    extracted_media = None
+    final_response = None
+    has_blocked_error = False
+
+    for ep, params in endpoints_to_try:
+        try:
+            r = requests.get(ep, params=params, timeout=20)
+            if r.status_code == 200:
+                res = r.json()
+                
+                # Check for server block inside response payload
+                res_str = json.dumps(res).lower()
+                if "blocked" in res_str or "http 401" in res_str or "\"ok\":false" in res_str:
+                    has_blocked_error = True
+                    continue
+
+                extracted_media = extract_media_url(res)
+                final_response = res
+                if extracted_media:
+                    break
+        except Exception:
+            continue
+
+    if user_id != ADMIN_ID:
+        user["credits"] -= 1
+
+    user["lookups"] += 1
+    global total_lookups
+    total_lookups += 1
+    save_data()
+
+    # If valid Video/Photo URL extracted, send direct Telegram file!
+    if extracted_media:
+        bot.delete_message(message.chat.id, wait_msg.message_id)
+        markup = InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            InlineKeyboardButton("▶️ Open Media in Browser", url=extracted_media),
+            InlineKeyboardButton("📥 Direct Download File", url=extracted_media)
+        )
+
+        is_video = any(ext in extracted_media.lower() for ext in [".mp4", ".mov", "m3u8", "video"])
+        sent_successfully = False
+        try:
+            if is_video:
+                bot.send_video(message.chat.id, extracted_media, caption="📸 <b>Instagram Video Downloaded Successfully!</b>\n⚡ <i>Powered by @team_lifexy</i>", reply_markup=markup, parse_mode="HTML")
+            else:
+                bot.send_photo(message.chat.id, extracted_media, caption="📸 <b>Instagram Media Downloaded Successfully!</b>\n⚡ <i>Powered by @team_lifexy</i>", reply_markup=markup, parse_mode="HTML")
+            sent_successfully = True
+        except Exception:
+            pass
+
+        if not sent_successfully:
+            bot.send_message(
+                message.chat.id,
+                f"📸 <b>Instagram Media Ready!</b>\n\nClick below to stream or download:",
+                reply_markup=markup,
+                parse_mode="HTML"
+            )
+        return
+
+    # If profile data or raw response fetched
+    if final_response:
+        result_str = json.dumps(final_response, indent=2, ensure_ascii=False)
+        scrub_targets = [r"(?i)onlyh4ckerzon", r"(?i)onlyhackerzon", r"(?i)rohit", r"(?i)@froxtdevil", r"(?i)optimusprime"]
+        for target in scrub_targets:
+            result_str = re.sub(target, "Crown 👑", result_str)
+
+        if len(result_str) > 3000:
+            result_str = result_str[:3000] + "\n... [Output Truncated]"
+
+        out_msg = (
+            f"📸 <b>Crown Instagram Intelligence (M4)</b> 📸\n"
+            f"──────────────────────────────\n"
+            f"🔍 <b>Input:</b> <code>{search_val}</code>\n"
+            f"──────────────────────────────\n"
+            f"<b>Output Data:</b>\n"
+            f"<pre>{result_str}</pre>\n"
+            f"──────────────────────────────\n"
+            f"⚡ <b>Powered By: @team_lifexy</b>"
+        )
+        bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        auto_delete(message.chat.id, wait_msg.message_id)
+    else:
+        msg_text = (
+            f"❌ <b>Instagram Request Failed!</b>\n\n"
+            f"• <b>Reason:</b> Instagram server restriction or invalid URL.\n"
+            f"• <b>Note:</b> Make sure to paste a valid Instagram Reel/Post link (e.g. <code>https://www.instagram.com/reel/...</code>) for downloading media."
+        )
+        bot.edit_message_text(msg_text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+
+# ================= GENERAL API ENGINE =================
 def execute_api_call(message, endpoint_url, query_label, search_val, params=None):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -416,12 +541,10 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
         total_lookups += 1
         save_data()
 
-        # Extract Media Link for Snapchat/Instagram Video Auto-Redirection
         extracted_media = extract_media_url(api_response)
 
         result_str = json.dumps(api_response, indent=2, ensure_ascii=False)
         
-        # Replace outdated developer handles dynamically
         scrub_targets = [r"(?i)onlyh4ckerzon", r"(?i)onlyhackerzon", r"(?i)rohit", r"(?i)@froxtdevil", r"(?i)optimusprime"]
         for target in scrub_targets:
             result_str = re.sub(target, "Crown 👑", result_str)
@@ -525,26 +648,18 @@ def handle_queries(message):
             execute_terabox_call(message, txt)
             return
 
-        # Instagram Handlers
+        # Instagram Handlers (UPDATED & ROUTED SAFELY)
         elif current_step == "ask_ig_dl":
-            url = f"{BASE_URL_OSINT}/instagram-download"
-            params = {"key": OSINT_KEY, "type": "download", "url": txt}
-            execute_api_call(message, url, "INSTAGRAM VIDEO DOWNLOAD", txt, params=params)
+            execute_instagram_call(message, "download", txt)
             return
         elif current_step == "ask_ig_best":
-            url = f"{BASE_URL_OSINT}/instagram-best-v1"
-            params = {"key": OSINT_KEY, "type": "best", "username": txt}
-            execute_api_call(message, url, "INSTAGRAM PROFILE LOOKUP", txt, params=params)
+            execute_instagram_call(message, "profile", txt)
             return
         elif current_step == "ask_ig_media":
-            url = f"{BASE_URL_OSINT}/instagram-media-v1"
-            params = {"key": OSINT_KEY, "type": "media", "username": txt}
-            execute_api_call(message, url, "INSTAGRAM MEDIA LOOKUP", txt, params=params)
+            execute_instagram_call(message, "media", txt)
             return
         elif current_step == "ask_ig_posts":
-            url = f"{BASE_URL_OSINT}/instagram-posts-v2"
-            params = {"key": OSINT_KEY, "type": "posts", "username": txt}
-            execute_api_call(message, url, "INSTAGRAM POSTS", txt, params=params)
+            execute_instagram_call(message, "posts", txt)
             return
 
         # Identity Handlers
@@ -618,10 +733,8 @@ def handle_queries(message):
         url = f"{BASE_URL_OSINT}/snapchat-download"
         params = {"key": OSINT_KEY, "action": "download", "query": txt}
         execute_api_call(message, url, "SNAPCHAT VIDEO DOWNLOAD", txt, params=params)
-    elif "instagram.com" in txt.lower():
-        url = f"{BASE_URL_OSINT}/instagram-download"
-        params = {"key": OSINT_KEY, "type": "download", "url": txt}
-        execute_api_call(message, url, "INSTAGRAM REEL DOWNLOAD", txt, params=params)
+    elif "instagram.com" in txt.lower() or "instagr.am" in txt.lower():
+        execute_instagram_call(message, "download", txt)
     elif "@" in txt and "." in txt and not txt.startswith("http"):
         url = f"{BASE_URL_OSINT}/email-info"
         params = {"key": OSINT_KEY, "mail": txt}
