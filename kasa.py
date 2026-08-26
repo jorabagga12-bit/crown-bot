@@ -1,4 +1,3 @@
- 
 import os
 import re
 import json
@@ -406,20 +405,20 @@ def execute_request(message, endpoint_list, query_label, search_val):
     total_lookups += 1
     save_data()
 
-    # Special handling for Terabox / Media Links to give direct Chrome Open / Download buttons
+    # Direct Terabox & Media Stream / Direct Download Handler
     if "Terabox" in query_label or media_url:
-        target_link = media_url if media_url else search_val
+        direct_link = media_url if media_url else search_val
         markup = InlineKeyboardMarkup(row_width=2)
         markup.add(
-            InlineKeyboardButton("🌐 Open in Chrome", url=target_link),
-            InlineKeyboardButton("📥 Download Directly", url=target_link)
+            InlineKeyboardButton("▶️ Watch Online (Chrome)", url=direct_link),
+            InlineKeyboardButton("📥 Direct Download", url=direct_link)
         )
         bot.edit_message_text(
-            f"👑 <b>Terabox File / Stream Ready!</b> 👑\n"
+            f"👑 <b>Terabox Direct Stream & Download Ready!</b> 👑\n"
             f"──────────────────────────────\n"
-            f"🔗 <b>Link:</b> <code>{search_val}</code>\n"
+            f"🔗 <b>Source:</b> <code>{search_val}</code>\n"
             f"──────────────────────────────\n"
-            f"✨ <i>Choose an action below to open or download directly:</i>",
+            f"✨ <i>Click below to watch or download instantly:</i>",
             message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML"
         )
         return
@@ -562,7 +561,7 @@ def handle_text(message):
             (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})
         ], "Phone Tracker / Truecaller", txt)
     elif "1024terabox.com" in txt.lower() or "terabox.com" in txt.lower():
-        execute_request(message, [(f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt})], "Terabox Stream V1", txt)
+        execute_request(message, [(f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt})], "Terabox Stream", txt)
     else:
         err = bot.reply_to(message, "⚠️ <b>Unrecognized Input!</b> Press /start to view options.", parse_mode="HTML")
         auto_delete(err.chat.id, err.message_id)
