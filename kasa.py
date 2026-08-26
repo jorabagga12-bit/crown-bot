@@ -405,22 +405,14 @@ def execute_request(message, endpoint_list, query_label, search_val):
     total_lookups += 1
     save_data()
 
-    # Direct Terabox & Media Stream / Direct Download Handler
-    if "Terabox" in query_label or media_url:
-        direct_link = media_url if media_url else search_val
+    # Original Media URL / Direct Stream / Direct Download Handler
+    if media_url:
         markup = InlineKeyboardMarkup(row_width=2)
         markup.add(
-            InlineKeyboardButton("▶️ Watch Online (Chrome)", url=direct_link),
-            InlineKeyboardButton("📥 Direct Download", url=direct_link)
+            InlineKeyboardButton("▶️ Open Media Link", url=media_url),
+            InlineKeyboardButton("📥 Download Directly", url=media_url)
         )
-        bot.edit_message_text(
-            f"👑 <b>Terabox Direct Stream & Download Ready!</b> 👑\n"
-            f"──────────────────────────────\n"
-            f"🔗 <b>Source:</b> <code>{search_val}</code>\n"
-            f"──────────────────────────────\n"
-            f"✨ <i>Click below to watch or download instantly:</i>",
-            message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML"
-        )
+        bot.edit_message_text(f"👑 <b>Media extracted successfully for {query_label}!</b>", message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
         return
 
     if final_response:
@@ -571,3 +563,4 @@ if __name__ == "__main__":
     print("👑 CROWN BOT M4 ULTRA ONLINE - ALL APIs ACTIVE!")
     keep_alive()
     bot.infinity_polling()
+
