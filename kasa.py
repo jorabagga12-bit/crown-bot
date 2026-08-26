@@ -79,12 +79,12 @@ def auto_delete(chat_id, message_id):
 
 def extract_media_url(data):
     if isinstance(data, str):
-        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play"]):
+        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play", "dlink"]):
             return data
         return None
 
     if isinstance(data, dict):
-        priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", "image_url", "audio_url", "direct_link", "url", "link"]
+        priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", "image_url", "audio_url", "direct_link", "dlink", "downloadLink", "url", "link", "secure_url", "file_url"]
         for key in priority_keys:
             val = data.get(key)
             if isinstance(val, str) and val.startswith("http"):
@@ -375,10 +375,11 @@ def execute_request(message, endpoint_list, query_label, search_val):
 
     final_response = None
     media_url = None
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
     for ep, params in endpoint_list:
         try:
-            r = requests.get(ep, params=params, timeout=20)
+            r = requests.get(ep, params=params, headers=headers, timeout=20)
             if r.status_code == 200:
                 try:
                     res = r.json()
@@ -518,11 +519,27 @@ def handle_text(message):
             "ask_veh_v3": ([(f"{BASE_URL_OSINT}/vehicle-v3", {"key": OSINT_KEY, "type": "v3", "rc": txt.upper()})], "Vehicle RC V3"),
             "ask_veh_v4": ([(f"{BASE_URL_OSINT}/vehicle-v4", {"key": OSINT_KEY, "type": "v4", "rc": txt.upper()})], "Vehicle RC V4"),
 
-            "ask_tb_s1": ([(f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt})], "Terabox Stream V1"),
-            "ask_tb_s2": ([(f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "url": txt})], "Terabox Stream V2"),
-            "ask_tb_s3": ([(f"{BASE_URL_OSINT}/terabox-stream-v3", {"key": OSINT_KEY, "type": "video_streamv3", "url": txt})], "Terabox Stream V3"),
-            "ask_tb_v2": ([(f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt})], "Terabox Video V2"),
-            "ask_tb_file2": ([(f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "url": txt})], "Terabox File V2"),
+            # Terabox with Fallback Parameters (url & link)
+            "ask_tb_s1": ([
+                (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "link": txt})
+            ], "Terabox Stream V1"),
+            "ask_tb_s2": ([
+                (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "link": txt})
+            ], "Terabox Stream V2"),
+            "ask_tb_s3": ([
+                (f"{BASE_URL_OSINT}/terabox-stream-v3", {"key": OSINT_KEY, "type": "video_streamv3", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream-v3", {"key": OSINT_KEY, "type": "video_streamv3", "link": txt})
+            ], "Terabox Stream V3"),
+            "ask_tb_v2": ([
+                (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "link": txt})
+            ], "Terabox Video V2"),
+            "ask_tb_file2": ([
+                (f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "link": txt})
+            ], "Terabox File V2"),
 
             "ask_ip1": ([(f"{BASE_URL_OSINT}/ip-v1", {"key": OSINT_KEY, "query": txt})], "IP Info V1"),
             "ask_ip2": ([(f"{BASE_URL_OSINT}/ip-v2", {"key": OSINT_KEY, "ip": txt})], "IP Info V2"),
@@ -552,8 +569,11 @@ def handle_text(message):
             (f"{BASE_URL_DARRIFY}/ph-tracker", {"token": DARRIFY_TOKEN, "number": txt}),
             (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})
         ], "Phone Tracker / Truecaller", txt)
-    elif "1024terabox.com" in txt.lower() or "terabox.com" in txt.lower():
-        execute_request(message, [(f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt})], "Terabox Stream", txt)
+    elif "1024terabox.com" in txt.lower() or "terabox.com" in txt.lower() or "terabox.app" in txt.lower():
+        execute_request(message, [
+            (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt}),
+            (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "link": txt})
+        ], "Terabox Stream", txt)
     else:
         err = bot.reply_to(message, "⚠️ <b>Unrecognized Input!</b> Press /start to view options.", parse_mode="HTML")
         auto_delete(err.chat.id, err.message_id)
