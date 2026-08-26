@@ -78,6 +78,34 @@ def auto_delete(chat_id, message_id):
     threading.Thread(target=delete).start()
 
 def extract_media_url(data):
+    # Pass 1: Prioritize Video / Stream / Dynamic Media URLs
+    def find_video(d):
+        if isinstance(d, str):
+            if d.startswith("http") and any(ext in d.lower() for ext in [".mp4", ".mov", "m3u8", "video", "stream", "bolt-gcdn"]):
+                return d
+            return None
+        if isinstance(d, dict):
+            priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "mediaUrl", "storyUrl", "snapUrl", "story_url", "snap_url", "direct_link", "dlink"]
+            for k in priority_keys:
+                v = d.get(k)
+                if isinstance(v, str) and v.startswith("http") and any(ext in v.lower() for ext in [".mp4", ".mov", "m3u8", "video", "stream"]):
+                    return v
+            for k, v in d.items():
+                res = find_video(v)
+                if res:
+                    return res
+        if isinstance(d, list):
+            for item in d:
+                res = find_video(item)
+                if res:
+                    return res
+        return None
+
+    video_res = find_video(data)
+    if video_res:
+        return video_res
+
+    # Pass 2: Fallback to General Media (Images, Audio, CDN URLs)
     if isinstance(data, str):
         if data.startswith("http") and (
             any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play", "dlink"])
@@ -220,7 +248,11 @@ def vehicle_menu():
 def download_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("▶️ Terabox Downloader", callback_data="ask_tb_dl")
+        InlineKeyboardButton("▶️ Terabox Stream V1", callback_data="ask_tb_s1"),
+        InlineKeyboardButton("▶️ Terabox Stream V2", callback_data="ask_tb_s2"),
+        InlineKeyboardButton("▶️ Terabox Stream V3", callback_data="ask_tb_s3"),
+        InlineKeyboardButton("📥 Terabox Video V2", callback_data="ask_tb_v2"),
+        InlineKeyboardButton("📄 Terabox File V2", callback_data="ask_tb_file2")
     )
     markup.add(InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main"))
     return markup
@@ -341,7 +373,11 @@ def handle_callbacks(call):
         "ask_veh_v3": "🏎️ Enter Vehicle RC Number (V3):",
         "ask_veh_v4": "🏎️ Enter Vehicle RC Number (V4):",
         
-        "ask_tb_dl": "📥 Send Terabox URL to Play/Download:",
+        "ask_tb_s1": "▶️ Send Terabox URL (Stream V1):",
+        "ask_tb_s2": "▶️ Send Terabox URL (Stream V2):",
+        "ask_tb_s3": "▶️ Send Terabox URL (Stream V3):",
+        "ask_tb_v2": "📥 Send Terabox URL (Video V2):",
+        "ask_tb_file2": "📄 Send Terabox URL (File V2):",
         
         "ask_ip1": "📍 Enter IP Address (V1):",
         "ask_ip2": "📍 Enter IP Address (V2):",
@@ -406,13 +442,19 @@ def execute_request(message, endpoint_list, query_label, search_val):
     total_lookups += 1
     save_data()
 
-    # Original Media URL / Direct Stream / Direct Download Handler
+    # Inline Markup for Media Links if Extracted
+    markup = None
     if media_url:
         markup = InlineKeyboardMarkup(row_width=2)
         markup.add(
             InlineKeyboardButton("▶️ Open Media Link", url=media_url),
             InlineKeyboardButton("📥 Download Directly", url=media_url)
         )
+
+    # For pure media requests (Terabox, Reels, Snap Story/Highlight), send direct link card
+    is_info_query = any(k in query_label.lower() for k in ["all data", "profile", "info", "stats", "tracker", "search", "master", "user id"])
+    
+    if media_url and not is_info_query:
         bot.edit_message_text(f"👑 <b>Media extracted successfully for {query_label}!</b>", message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
         return
 
@@ -436,7 +478,7 @@ def execute_request(message, endpoint_list, query_label, search_val):
             f"──────────────────────────────\n"
             f"⚡ <b>Powered By: @team_lifexy</b>"
         )
-        bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
     else:
         bot.edit_message_text("❌ <b>API Error:</b> Data not found or API temporarily down. Please try again later.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
@@ -504,11 +546,13 @@ def handle_text(message):
             ], "Snapchat All Data"),
             "ask_snap_high": ([
                 (f"{BASE_URL_OSINT}/snapchat-highlight", {"key": OSINT_KEY, "action": "highlights", "username": txt}),
-                (f"{BASE_URL_OSINT}/snapchat-highlight", {"key": OSINT_KEY, "action": "highlights", "user": txt})
+                (f"{BASE_URL_OSINT}/snapchat-highlight", {"key": OSINT_KEY, "action": "highlights", "user": txt}),
+                (f"{BASE_URL_OSINT}/snapchat-all", {"key": OSINT_KEY, "action": "highlights", "username": txt})
             ], "Snapchat Highlight"),
             "ask_snap_story": ([
                 (f"{BASE_URL_OSINT}/snapchat-story", {"key": OSINT_KEY, "action": "stories", "username": txt}),
-                (f"{BASE_URL_OSINT}/snapchat-story", {"key": OSINT_KEY, "action": "stories", "user": txt})
+                (f"{BASE_URL_OSINT}/snapchat-story", {"key": OSINT_KEY, "action": "stories", "user": txt}),
+                (f"{BASE_URL_OSINT}/snapchat-all", {"key": OSINT_KEY, "action": "stories", "username": txt})
             ], "Snapchat Story"),
 
             "ask_tc": ([(f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})], "Truecaller Info"),
@@ -526,14 +570,33 @@ def handle_text(message):
             "ask_veh_v3": ([(f"{BASE_URL_OSINT}/vehicle-v3", {"key": OSINT_KEY, "type": "v3", "rc": txt.upper()})], "Vehicle RC V3"),
             "ask_veh_v4": ([(f"{BASE_URL_OSINT}/vehicle-v4", {"key": OSINT_KEY, "type": "v4", "rc": txt.upper()})], "Vehicle RC V4"),
 
-            # Consolidated Advanced Terabox Handlers with Auto-Fallback
-            "ask_tb_dl": ([
+            # Terabox Handlers with Auto-Fallback Engine across all 5 Buttons
+            "ask_tb_s1": ([
                 (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt}),
                 (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "link": txt}),
                 (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt})
+            ], "Terabox Stream V1"),
+            "ask_tb_s2": ([
+                (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "link": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt})
+            ], "Terabox Stream V2"),
+            "ask_tb_s3": ([
+                (f"{BASE_URL_OSINT}/terabox-stream-v3", {"key": OSINT_KEY, "type": "video_streamv3", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream-v3", {"key": OSINT_KEY, "type": "video_streamv3", "link": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "url": txt})
+            ], "Terabox Stream V3"),
+            "ask_tb_v2": ([
                 (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt}),
-                (f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "url": txt})
-            ], "Terabox Direct Link"),
+                (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "link": txt}),
+                (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt})
+            ], "Terabox Video V2"),
+            "ask_tb_file2": ([
+                (f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "url": txt}),
+                (f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "link": txt}),
+                (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt})
+            ], "Terabox File V2"),
 
             "ask_ip1": ([(f"{BASE_URL_OSINT}/ip-v1", {"key": OSINT_KEY, "query": txt})], "IP Info V1"),
             "ask_ip2": ([(f"{BASE_URL_OSINT}/ip-v2", {"key": OSINT_KEY, "ip": txt})], "IP Info V2"),
@@ -564,14 +627,12 @@ def handle_text(message):
             (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})
         ], "Phone Tracker / Truecaller", txt)
     elif "1024terabox.com" in txt.lower() or "terabox.com" in txt.lower() or "terabox.app" in txt.lower():
-        # Fallback chain directly triggered for normal text messages containing terabox URL
         execute_request(message, [
             (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "url": txt}),
             (f"{BASE_URL_OSINT}/terabox-stream", {"key": OSINT_KEY, "type": "video_stream", "link": txt}),
             (f"{BASE_URL_OSINT}/terabox-stream-v2", {"key": OSINT_KEY, "type": "video_streamv2", "url": txt}),
-            (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt}),
-            (f"{BASE_URL_OSINT}/terabox-file-v2", {"key": OSINT_KEY, "type": "file_downloadv2", "url": txt})
-        ], "Terabox Direct Link", txt)
+            (f"{BASE_URL_OSINT}/terabox-video-v2", {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt})
+        ], "Terabox Stream", txt)
     else:
         err = bot.reply_to(message, "⚠️ <b>Unrecognized Input!</b> Press /start to view options.", parse_mode="HTML")
         auto_delete(err.chat.id, err.message_id)
@@ -581,4 +642,3 @@ if __name__ == "__main__":
     print("👑 CROWN BOT M4 ULTRA ONLINE - ALL APIs ACTIVE!")
     keep_alive()
     bot.infinity_polling()
-
