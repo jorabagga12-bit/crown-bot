@@ -16,7 +16,7 @@ app = Flask('')
 def home():
     html_content = """
     <!DOCTYPE html>
-    <html lang="hi">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@ def home():
     </head>
     <body>
         <div class="card">
-            <h1>👑 क्राउन बोट M4</h1>
+            <h1>👑 CROWN BOT M4</h1>
             <div class="status">🟢 Ultra System Online</div>
             <div class="footer">Powered by @team_lifexy ⚡</div>
         </div>
@@ -111,154 +111,155 @@ def clean_terabox_url(raw_url):
         return f"https://terabox.com/s/{surl}"
     return raw_url
 
-# ================= CLEAN & POWERFUL REPLIES (GRID BOXES) =================
+# ================= REPLY KEYBOARD (GRID BOXES) =================
 def get_reply_keyboard():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(
-        KeyboardButton("📧 ईमेल इंफो (Email Info)"),
-        KeyboardButton("🚗 व्हीकल इंफो & RC")
+        KeyboardButton("📧 Email Info Lookup"),
+        KeyboardButton("🚗 Vehicle Info & RC")
     )
     markup.add(
-        KeyboardButton("📸 इंस्टाग्राम हब"),
-        KeyboardButton("👻 स्नैपचैट टूल्स")
+        KeyboardButton("📸 Instagram Hub"),
+        KeyboardButton("👻 Snapchat Tools")
     )
     markup.add(
-        KeyboardButton("📦 टेराबॉक्स प्लेयर"),
-        KeyboardButton("🌐 नेटवर्क व IP खोज")
+        KeyboardButton("📦 Terabox Player"),
+        KeyboardButton("🌐 Network & IP Tools")
     )
     markup.add(
-        KeyboardButton("💎 मेरे क्रेडिट्स"),
-        KeyboardButton("🔙 मुख्य मेनू")
+        KeyboardButton("💎 My Credits"),
+        KeyboardButton("🔙 Main Menu")
     )
     return markup
 
-# ================= CLEAN INLINE MENUS (WITHOUT REPETITIVE VERSION NAMES) =================
+# ================= INLINE MENUS =================
 def main_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("🪪 पहचान व सरकारी सेवाएं", callback_data="menu_identity"),
-        InlineKeyboardButton("📸 इंस्टाग्राम टूलकिट", callback_data="menu_instagram")
+        InlineKeyboardButton("🪪 Identity & Gov Services", callback_data="menu_identity"),
+        InlineKeyboardButton("📸 Instagram Toolkit", callback_data="menu_instagram")
     )
     markup.add(
-        InlineKeyboardButton("👻 स्नैपचैट टूलकिट", callback_data="menu_snapchat"),
-        InlineKeyboardButton("📦 टेराबॉक्स प्लेयर 🎬", callback_data="menu_terabox")
+        InlineKeyboardButton("👻 Snapchat Toolkit", callback_data="menu_snapchat"),
+        InlineKeyboardButton("📦 Terabox Player 🎬", callback_data="menu_terabox")
     )
     markup.add(
-        InlineKeyboardButton("🌐 वेबसाइट व IP नेटवर्क", callback_data="menu_geo"),
-        InlineKeyboardButton("🤖 AI व अन्य सुविधाएं", callback_data="menu_ai")
+        InlineKeyboardButton("🌐 Web & IP Network", callback_data="menu_geo"),
+        InlineKeyboardButton("🤖 AI & Utilities", callback_data="menu_ai")
     )
-    markup.add(InlineKeyboardButton("💎 मेरी प्रोफाइल (VIP)", callback_data="profile"))
+    markup.add(InlineKeyboardButton("💎 My Profile (VIP)", callback_data="profile"))
     return markup
 
 def identity_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("📧 ईमेल इंफो lookup", callback_data="ask_email_info"),
-        InlineKeyboardButton("🚗 व्हीकल इंफो & RC डिटेल्स", callback_data="ask_vehicle")
+        InlineKeyboardButton("📧 Email Info Lookup", callback_data="ask_email_info"),
+        InlineKeyboardButton("🚗 Vehicle Full Info & RC", callback_data="ask_vehicle")
     )
     markup.add(
-        InlineKeyboardButton("📱 फोन नंबर इंफो", callback_data="ask_phone"),
-        InlineKeyboardButton("📞 ट्रूकॉलर सर्च", callback_data="ask_truecaller")
+        InlineKeyboardButton("📱 Phone Number Info", callback_data="ask_phone"),
+        InlineKeyboardButton("📞 Truecaller Search", callback_data="ask_truecaller")
     )
     markup.add(
-        InlineKeyboardButton("🪪 आधार इंफो", callback_data="ask_aadhar"),
-        InlineKeyboardButton("📇 पैन कार्ड डिटेल्स", callback_data="ask_pan")
+        InlineKeyboardButton("🪪 Aadhaar Info", callback_data="ask_aadhar"),
+        InlineKeyboardButton("📇 PAN Card Details", callback_data="ask_pan")
     )
     markup.add(
-        InlineKeyboardButton("🏢 GST सर्च", callback_data="ask_gst"),
-        InlineKeyboardButton("🏦 बैंक IFSC कोड", callback_data="ask_ifsc")
+        InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst"),
+        InlineKeyboardButton("🏦 Bank IFSC Code", callback_data="ask_ifsc")
     )
     markup.add(
-        InlineKeyboardButton("📱 IMEI नंबर जांच", callback_data="ask_imei"),
-        InlineKeyboardButton("🔙 मुख्य मेनू", callback_data="menu_main")
+        InlineKeyboardButton("📱 IMEI Number Check", callback_data="ask_imei"),
+        InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main")
     )
     return markup
 
 def instagram_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("👤 प्रोफाइल सर्च (सर्वश्रेष्ठ)", callback_data="ask_ig_best"),
-        InlineKeyboardButton("⬇️ रील / पोस्ट डाउनलोड", callback_data="ask_ig_dl")
+        InlineKeyboardButton("👤 Profile Search (Best)", callback_data="ask_ig_best"),
+        InlineKeyboardButton("⬇️ Reel / Post Downloader", callback_data="ask_ig_dl")
     )
     markup.add(
-        InlineKeyboardButton("📸 मीडिया व फोटोज़", callback_data="ask_ig_media"),
-        InlineKeyboardButton("📝 हाल की पोस्ट्स", callback_data="ask_ig_posts")
+        InlineKeyboardButton("📸 Media & Photos", callback_data="ask_ig_media"),
+        InlineKeyboardButton("📝 Recent Posts", callback_data="ask_ig_posts")
     )
     markup.add(
-        InlineKeyboardButton("📂 संपूर्ण डेटा डाउनलोड", callback_data="ask_ig_downloads"),
-        InlineKeyboardButton("📊 अकाउंट स्टेट्स", callback_data="ask_ig_stats")
+        InlineKeyboardButton("📂 Full Data Download", callback_data="ask_ig_downloads"),
+        InlineKeyboardButton("📊 Account Stats", callback_data="ask_ig_stats")
     )
-    markup.add(InlineKeyboardButton("🔙 मुख्य मेनू", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main"))
     return markup
 
 def snapchat_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("👻 स्नैपचैट प्रोफाइल व ऑल डेटा", callback_data="ask_snap_all"),
-        InlineKeyboardButton("🌟 स्नैपचैट हाइलाइट्स", callback_data="ask_snap_high")
+        InlineKeyboardButton("👻 Snapchat Profile & All Data", callback_data="ask_snap_all"),
+        InlineKeyboardButton("🌟 Snapchat Highlights", callback_data="ask_snap_high")
     )
     markup.add(
-        InlineKeyboardButton("🎞️ स्नैपचैट स्टोरी (वीडियो डाउनलोड)", callback_data="ask_snap_story"),
-        InlineKeyboardButton("🔙 मुख्य मेनू", callback_data="menu_main")
+        InlineKeyboardButton("🎞️ Snapchat Stories & Videos", callback_data="ask_snap_story"),
+        InlineKeyboardButton("📥 Snapchat Video Encoding Hub", callback_data="ask_snap_dl")
     )
+    markup.add(InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main"))
     return markup
 
 def terabox_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("🎬 डायरेक्ट वीडियो स्ट्रीम", callback_data="ask_tb_s1"),
-        InlineKeyboardButton("📥 फास्ट वीडियो डाउनलोड", callback_data="ask_tb_v2")
+        InlineKeyboardButton("🎬 Direct Video Stream", callback_data="ask_tb_s1"),
+        InlineKeyboardButton("📥 Fast Video Download", callback_data="ask_tb_v2")
     )
-    markup.add(InlineKeyboardButton("🔙 मुख्य मेनू", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main"))
     return markup
 
 def geo_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("🌐 वेबसाइट स्क्रैपर", callback_data="ask_web"),
-        InlineKeyboardButton("📍 IP एड्रेस इंफो", callback_data="ask_ip1")
+        InlineKeyboardButton("🌐 Website Scraper", callback_data="ask_web"),
+        InlineKeyboardButton("📍 IP Address Info", callback_data="ask_ip1")
     )
     markup.add(
-        InlineKeyboardButton("📮 पिनकोड इंफो", callback_data="ask_pin"),
-        InlineKeyboardButton("🇮🇳 देश की जानकारी (Country)", callback_data="ask_country")
+        InlineKeyboardButton("📮 Pincode Info", callback_data="ask_pin"),
+        InlineKeyboardButton("🇮🇳 Country Info", callback_data="ask_country")
     )
     markup.add(
-        InlineKeyboardButton("🌤️ मौसम की जानकारी", callback_data="ask_weather"),
-        InlineKeyboardButton("💻 गिटहब (GitHub) सर्च", callback_data="ask_github")
+        InlineKeyboardButton("🌤️ Weather Information", callback_data="ask_weather"),
+        InlineKeyboardButton("💻 GitHub Search", callback_data="ask_github")
     )
-    markup.add(InlineKeyboardButton("🔙 मुख्य मेनू", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main"))
     return markup
 
 def ai_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("💖 AI चैट असिस्टेंट", callback_data="ask_aigf"),
-        InlineKeyboardButton("🎨 AI इमेज जनरेटर", callback_data="ask_aiimg")
+        InlineKeyboardButton("💖 AI Chat Assistant", callback_data="ask_aigf"),
+        InlineKeyboardButton("🎨 AI Image Generator", callback_data="ask_aiimg")
     )
     markup.add(
-        InlineKeyboardButton("✨ इमेज प्रॉमप्ट जनरेटर", callback_data="ask_promptgen"),
-        InlineKeyboardButton("🎮 BGMI प्लेयर इंफो", callback_data="ask_bgmi")
+        InlineKeyboardButton("✨ Prompt Generator", callback_data="ask_promptgen"),
+        InlineKeyboardButton("🎮 BGMI Player Info", callback_data="ask_bgmi")
     )
-    markup.add(InlineKeyboardButton("🔙 मुख्य मेनू", callback_data="menu_main"))
+    markup.add(InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main"))
     return markup
 
-# ================= START COMMAND (HINDI CLEAN WELCOME) =================
+# ================= START COMMAND =================
 @bot.message_handler(commands=["start"])
 def start(message):
     get_user(message.from_user.id)
     user_steps[message.from_user.id] = None 
 
     welcome_text = (
-        f"<b>वेलकम टू क्राउन बोट 👑 M4 आपका स्वागत करते हैं!</b>\n\n"
-        f"<i>नीचे दिए गए किसी भी बटन पर क्लिक करके इस्तेमाल करें:</i>\n"
+        f"<b>Welcome to Crown Bot M4!</b>\n\n"
+        f"<i>Select any option below or use the buttons to proceed:</i>\n"
         f"──────────────────────\n"
-        f"⚡ <b>रिसर्च व हेल्प:</b> @team_lifexy"
+        f"⚡ <b>Research & Support:</b> @team_lifexy"
     )
 
     bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu(), parse_mode="HTML")
-    bot.send_message(message.chat.id, "👇 <b>त्वरित मेनू (Quick Keyboard):</b>", reply_markup=get_reply_keyboard(), parse_mode="HTML")
+    bot.send_message(message.chat.id, "👇 <b>Quick Control Panel:</b>", reply_markup=get_reply_keyboard(), parse_mode="HTML")
 
-# ================= INLINE CALLBACK HANDLER =================
+# ================= CALLBACK HANDLER =================
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callbacks(call):
     chat_id = call.message.chat.id
@@ -283,11 +284,11 @@ def handle_callbacks(call):
         user = get_user(user_id)
         credits_display = "♾️ <b>Unlimited (VIP)</b>" if user_id == ADMIN_ID else f"<b>{user['credits']}</b>"
         info_text = (
-            f"👑 <b><u>क्राउन प्रोफाइल M4</u></b> 👑\n"
+            f"👑 <b><u>Crown Profile M4</u></b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━\n"
-            f"👤 <b>यूज़र:</b> <i>{call.from_user.first_name}</i>\n"
-            f"💎 <b>क्रेडिट्स:</b> {credits_display}\n"
-            f"🔍 <b>कुल खोज:</b> <b>{user['lookups']}</b>\n"
+            f"👤 <b>User:</b> <i>{call.from_user.first_name}</i>\n"
+            f"💎 <b>Credits:</b> {credits_display}\n"
+            f"🔍 <b>Total Lookups:</b> <b>{user['lookups']}</b>\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"⚡ <b>Developer:</b> @team_lifexy"
         )
@@ -295,51 +296,52 @@ def handle_callbacks(call):
 
     else:
         prompts = {
-            "ask_email_info": "📧 <b>ईमेल दर्ज करें:</b> (उदा. test@gmail.com)",
-            "ask_vehicle": "🚗 <b>गाड़ी/व्हीकल नंबर दर्ज करें:</b> (उदा. MH12DE1433)",
-            "ask_phone": "📱 <b>10 अंकों का फोन नंबर दर्ज करें:</b>",
-            "ask_truecaller": "📞 <b>ट्रूकॉलर जांच के लिए नंबर दर्ज करें:</b>",
-            "ask_aadhar": "🪪 <b>12 अंकों का आधार नंबर दर्ज करें:</b>",
-            "ask_pan": "📇 <b>10 अक्षरों का पैन कार्ड नंबर दर्ज करें:</b>",
-            "ask_gst": "🏢 <b>15 अक्षरों का GSTIN नंबर दर्ज करें:</b>",
-            "ask_ifsc": "🏦 <b>बैंक का IFSC कोड दर्ज करें:</b>",
-            "ask_imei": "📱 <b>15 अंकों का IMEI नंबर दर्ज करें:</b>",
+            "ask_email_info": "📧 <b>Enter Email Address:</b> (e.g., test@gmail.com)",
+            "ask_vehicle": "🚗 <b>Enter Vehicle Number:</b> (e.g., MH12DE1433)",
+            "ask_phone": "📱 <b>Enter 10-digit Phone Number:</b>",
+            "ask_truecaller": "📞 <b>Enter Phone Number for Truecaller:</b>",
+            "ask_aadhar": "🪪 <b>Enter 12-digit Aadhaar Number:</b>",
+            "ask_pan": "📇 <b>Enter 10-character PAN Card Number:</b>",
+            "ask_gst": "🏢 <b>Enter 15-character GSTIN:</b>",
+            "ask_ifsc": "🏦 <b>Enter Bank IFSC Code:</b>",
+            "ask_imei": "📱 <b>Enter 15-digit IMEI Number:</b>",
             
             # Instagram
-            "ask_ig_best": "🏆 <b>इंस्टाग्राम यूज़रनेम दर्ज करें:</b>",
-            "ask_ig_dl": "⬇️ <b>इंस्टाग्राम रील या पोस्ट का लिंक भेजें:</b>",
-            "ask_ig_media": "🎬 <b>इंस्टाग्राम यूज़रनेम (मीडिया जांच) दर्ज करें:</b>",
-            "ask_ig_posts": "📝 <b>इंस्टाग्राम पोस्ट्स जांच के लिए यूज़रनेम भेजें:</b>",
-            "ask_ig_downloads": "📂 <b>डाउनलोड के लिए यूज़रनेम दर्ज करें:</b>",
-            "ask_ig_stats": "📊 <b>अकाउंट स्टेट्स के लिए यूज़रनेम भेजें:</b>",
+            "ask_ig_best": "🏆 <b>Enter Instagram Username:</b>",
+            "ask_ig_dl": "⬇️ <b>Send Instagram Reel or Post Link:</b>",
+            "ask_ig_media": "🎬 <b>Enter Instagram Username (Media Check):</b>",
+            "ask_ig_posts": "📝 <b>Enter Instagram Username for Posts:</b>",
+            "ask_ig_downloads": "📂 <b>Enter Instagram Username for Downloads:</b>",
+            "ask_ig_stats": "📊 <b>Enter Instagram Username for Stats:</b>",
             
             # Snapchat
-            "ask_snap_all": "👻 <b>स्नैपचैट यूज़रनेम दर्ज करें:</b>",
-            "ask_snap_high": "🌟 <b>स्नैपचैट हाइलाइट के लिए यूज़रनेम दर्ज करें:</b>",
-            "ask_snap_story": "🎞️ <b>स्नैपचैट स्टोरी/वीडियो डाउनलोड के लिए यूज़रनेम भेजें:</b>",
+            "ask_snap_all": "👻 <b>Enter Snapchat Username:</b>",
+            "ask_snap_high": "🌟 <b>Enter Snapchat Username for Highlights:</b>",
+            "ask_snap_story": "🎞️ <b>Enter Snapchat Username for Stories/Videos:</b>",
+            "ask_snap_dl": "📥 <b>Enter Snapchat Video URL or Username for Media Encoding:</b>",
             
             # Terabox
-            "ask_tb_s1": "🎬 <b>टेराबॉक्स वीडियो लिंक भेजें:</b>",
-            "ask_tb_v2": "📥 <b>डाउनलोड के लिए टेराबॉक्स लिंक भेजें:</b>",
+            "ask_tb_s1": "🎬 <b>Send Terabox Video Link:</b>",
+            "ask_tb_v2": "📥 <b>Send Terabox Link for Download:</b>",
             
             # Geo & Utilities
-            "ask_web": "🌐 <b>वेबसाइट का पूरा URL भेजें:</b>",
-            "ask_ip1": "🌐 <b>IP एड्रेस दर्ज करें:</b>",
-            "ask_pin": "📍 <b>6 अंकों का पिनकोड दर्ज करें:</b>",
-            "ask_country": "🇮🇳 <b>देश का नाम दर्ज करें (उदा. india):</b>",
-            "ask_weather": "🌤️ <b>शहर का नाम दर्ज करें:</b>",
-            "ask_github": "💻 <b>गिटहब यूज़रनेम या क्वेरी भेजें:</b>",
+            "ask_web": "🌐 <b>Enter Full Website URL:</b>",
+            "ask_ip1": "🌐 <b>Enter IP Address:</b>",
+            "ask_pin": "📍 <b>Enter 6-digit Pincode:</b>",
+            "ask_country": "🇮🇳 <b>Enter Country Name (e.g., india):</b>",
+            "ask_weather": "🌤️ <b>Enter City Name:</b>",
+            "ask_github": "💻 <b>Enter GitHub Username or Query:</b>",
             
             # AI & Games
-            "ask_aigf": "💖 <b>AI चैट के लिए कोई भी सवाल लिखें:</b>",
-            "ask_aiimg": "🎨 <b>इमेज बनाने के लिए प्रॉमप्ट लिखें:</b>",
-            "ask_promptgen": "✨ <b>इमेज का URL भेजें:</b>",
-            "ask_bgmi": "🎮 <b>BGMI प्लेयर आईडी (Character ID) दर्ज करें:</b>"
+            "ask_aigf": "💖 <b>Type your query for AI Chat:</b>",
+            "ask_aiimg": "🎨 <b>Enter prompt to generate image:</b>",
+            "ask_promptgen": "✨ <b>Send Image URL for Prompt Generation:</b>",
+            "ask_bgmi": "🎮 <b>Enter BGMI Character ID:</b>"
         }
         
         if call.data in prompts:
             user_steps[user_id] = call.data
-            bot.send_message(chat_id, f"👑 <b>इनपुट की आवश्यकता है:</b>\n{prompts[call.data]}", parse_mode="HTML")
+            bot.send_message(chat_id, f"👑 <b>Input Required:</b>\n{prompts[call.data]}", parse_mode="HTML")
 
     bot.answer_callback_query(call.id)
 
@@ -349,10 +351,10 @@ def execute_terabox_call(message, search_val):
     user = get_user(user_id)
 
     if user_id != ADMIN_ID and user["credits"] < 1:
-        bot.reply_to(message, "❌ <i>पर्याप्त क्रेडिट नहीं हैं!</i>", parse_mode="HTML")
+        bot.reply_to(message, "❌ <i>Insufficient credits!</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "🎬🍿 <b><i>वीडियो लोड हो रहा है, कृपया प्रतीक्षा करें...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "🎬🍿 <b><i>Loading video stream, please wait...</i></b>", parse_mode="HTML")
     normalized_url = clean_terabox_url(search_val)
     
     endpoints = [
@@ -384,21 +386,21 @@ def execute_terabox_call(message, search_val):
 
         markup = InlineKeyboardMarkup(row_width=1)
         markup.add(
-            InlineKeyboardButton("▶️ अभी वीडियो देखें (WATCH NOW)", url=stream_link),
-            InlineKeyboardButton("📥 डायरेक्ट डाउनलोड करें", url=stream_link)
+            InlineKeyboardButton("▶️ Watch Video Now", url=stream_link),
+            InlineKeyboardButton("📥 Download File Direct", url=stream_link)
         )
         
         caption = (
-            f"👑 <b>क्राउन टेराबॉक्स प्लेयर M4</b> 👑\n"
+            f"👑 <b>Crown Terabox Player M4</b> 👑\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"🎬 <b>स्टेटस:</b> <i>वीडियो स्ट्रीम तैयार है!</i>\n"
+            f"🎬 <b>Status:</b> <i>Video stream is ready!</i>\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"👇 <b>नीचे बटन पर क्लिक करके वीडियो चलाएं:</b>"
+            f"👇 <b>Click the buttons below to play/download:</b>"
         )
         bot.edit_message_text(caption, message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
     else:
-        bot.edit_message_text("❌ <b>वीडियो लोड करने में असमर्थ।</b> कृपया दूसरा लिंक आज़माएं।", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        bot.edit_message_text("❌ <b>Unable to load video stream.</b> Please try another link.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
 # ================= STANDARD API ENGINE WITH MEDIA BUTTON DETECTOR =================
 def execute_api_call(message, endpoint_url, query_label, search_val, params=None):
@@ -406,16 +408,16 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
     user = get_user(user_id)
 
     if user_id != ADMIN_ID and user["credits"] < 1:
-        bot.reply_to(message, "❌ <i>क्रेडिट समाप्त हो गए हैं। contact @team_lifexy</i>", parse_mode="HTML")
+        bot.reply_to(message, "❌ <i>Credits exhausted. Contact @team_lifexy</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "👑📡 <b><i>डेटा प्राप्त किया जा रहा है...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "👑📡 <b><i>Fetching data from server...</i></b>", parse_mode="HTML")
 
     try:
         r = requests.get(endpoint_url, params=params, timeout=25)
         
         if r.status_code == 404:
-            bot.edit_message_text("⚠️ <b>त्रुटि (404):</b> डेटा प्राप्त नहीं हुआ।", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+            bot.edit_message_text("⚠️ <b>Error (404):</b> Data not found.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
             return
             
         try:
@@ -464,12 +466,12 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
             result_json = result_json[:3500] + "\n... [TRUNCATED]"
 
         text = f"""
-👑 <b>क्राउन इंटेल रिजल्ट (CROWN M4)</b> 👑
+👑 <b>Crown Intel Result (CROWN M4)</b> 👑
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 <b>सेवा:</b> <i>{query_label}</i>
-📌 <b>इनपुट:</b> <code>{search_val}</code>
+🔍 <b>Service:</b> <i>{query_label}</i>
+📌 <b>Input:</b> <code>{search_val}</code>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-<b><u>परिणाम (DATA OUTPUT):</u></b>
+<b><u>Data Output:</u></b>
 <pre>{result_json}</pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ <b>Power: @team_lifexy</b>
@@ -478,15 +480,15 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
         if media_link:
             markup = InlineKeyboardMarkup(row_width=1)
             markup.add(
-                InlineKeyboardButton("▶️ डायरेक्ट वीडियो/मीडिया देखें", url=media_link),
-                InlineKeyboardButton("📥 फाइल डाउनलोड करें", url=media_link)
+                InlineKeyboardButton("▶️ View Video / Media", url=media_link),
+                InlineKeyboardButton("📥 Download File", url=media_link)
             )
 
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
 
     except Exception:
-        bot.edit_message_text("❌ <b>सिस्टम त्रुटि:</b> समय सीमा समाप्त या API प्रतिक्रिया उपलब्ध नहीं है।", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        bot.edit_message_text("❌ <b>System Error:</b> Request timeout or API unreachable.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
 # ================= SMART QUERY ROUTER =================
 @bot.message_handler(func=lambda m: m.text and not m.text.startswith("/"))
@@ -495,32 +497,32 @@ def handle_queries(message):
     user_id = message.from_user.id
 
     # 0. Quick Buttons Handlers
-    if txt == "📧 ईमेल इंफो (Email Info)":
+    if txt == "📧 Email Info Lookup":
         user_steps[user_id] = "ask_email_info"
-        bot.reply_to(message, "👑 <b>ईमेल दर्ज करें:</b>\n<i>(उदा. test@gmail.com)</i>", parse_mode="HTML")
+        bot.reply_to(message, "👑 <b>Enter Email Address:</b>\n<i>(e.g., test@gmail.com)</i>", parse_mode="HTML")
         return
-    elif txt == "🚗 व्हीकल इंफो & RC":
+    elif txt == "🚗 Vehicle Info & RC":
         user_steps[user_id] = "ask_vehicle"
-        bot.reply_to(message, "👑 <b>गाड़ी का नंबर दर्ज करें:</b>\n<i>(उदा. MH12DE1433)</i>", parse_mode="HTML")
+        bot.reply_to(message, "👑 <b>Enter Vehicle Number:</b>\n<i>(e.g., MH12DE1433)</i>", parse_mode="HTML")
         return
-    elif txt == "📦 टेराबॉक्स प्लेयर":
-        bot.reply_to(message, "👑 <b>टेराबॉक्स मेनू:</b>", reply_markup=terabox_menu(), parse_mode="HTML")
+    elif txt == "📦 Terabox Player":
+        bot.reply_to(message, "👑 <b>Terabox Menu:</b>", reply_markup=terabox_menu(), parse_mode="HTML")
         return
-    elif txt == "📸 इंस्टाग्राम हब":
-        bot.reply_to(message, "👑 <b>इंस्टाग्राम मेनू:</b>", reply_markup=instagram_menu(), parse_mode="HTML")
+    elif txt == "📸 Instagram Hub":
+        bot.reply_to(message, "👑 <b>Instagram Menu:</b>", reply_markup=instagram_menu(), parse_mode="HTML")
         return
-    elif txt == "👻 स्नैपचैट टूल्स":
-        bot.reply_to(message, "👑 <b>स्नैपचैट मेनू:</b>", reply_markup=snapchat_menu(), parse_mode="HTML")
+    elif txt == "👻 Snapchat Tools":
+        bot.reply_to(message, "👑 <b>Snapchat Menu:</b>", reply_markup=snapchat_menu(), parse_mode="HTML")
         return
-    elif txt == "🌐 नेटवर्क व IP खोज":
-        bot.reply_to(message, "👑 <b>नेटवर्क मेनू:</b>", reply_markup=geo_menu(), parse_mode="HTML")
+    elif txt == "🌐 Network & IP Tools":
+        bot.reply_to(message, "👑 <b>Network Menu:</b>", reply_markup=geo_menu(), parse_mode="HTML")
         return
-    elif txt == "💎 मेरे क्रेडिट्स":
+    elif txt == "💎 My Credits":
         user = get_user(user_id)
-        bot.reply_to(message, f"👑 <b>आपके क्रेडिट्स:</b> {user['credits']}\n<b>हेल्प:</b> @team_lifexy", parse_mode="HTML")
+        bot.reply_to(message, f"👑 <b>Your Credits:</b> {user['credits']}\n<b>Support:</b> @team_lifexy", parse_mode="HTML")
         return
-    elif txt == "🔙 मुख्य मेनू":
-        bot.reply_to(message, "👑 <b>मुख्य मेनू:</b>", reply_markup=main_menu(), parse_mode="HTML")
+    elif txt == "🔙 Main Menu":
+        bot.reply_to(message, "👑 <b>Main Menu:</b>", reply_markup=main_menu(), parse_mode="HTML")
         return
 
     current_step = user_steps.get(user_id)
@@ -626,6 +628,11 @@ def handle_queries(message):
             params = {"key": OSINT_KEY, "action": "stories", "username": txt}
             execute_api_call(message, url, "SNAPCHAT STORY & VIDEO", txt, params=params)
             return
+        elif current_step == "ask_snap_dl":
+            url = f"{BASE_URL_OSINT}/snapchat-download"
+            params = {"key": OSINT_KEY, "action": "download", "query": txt}
+            execute_api_call(message, url, "SNAPCHAT VIDEO ENCODING & MEDIA", txt, params=params)
+            return
 
         # Terabox & Network
         elif current_step in ["ask_tb_s1", "ask_tb_v2"]:
@@ -709,7 +716,7 @@ def handle_queries(message):
         params = {"key": OSINT_KEY, "type": "v1", "rc": txt.upper()}
         execute_api_call(message, url, "VEHICLE FULL INFO & RC", txt.upper(), params=params)
     else:
-        msg = bot.reply_to(message, "❌ <b>अमान्य इनपुट!</b>\n<i>कृपया /start दबाकर मेनू से विकल्प चुनें।</i>", parse_mode="HTML")
+        msg = bot.reply_to(message, "❌ <b>Invalid Input!</b>\n<i>Please press /start to open the menu and select an option.</i>", parse_mode="HTML")
         auto_delete(msg.chat.id, msg.message_id)
 
 # ================= RUN SERVER =================
