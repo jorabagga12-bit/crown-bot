@@ -108,7 +108,7 @@ def extract_media_url(data):
     # Pass 2: Fallback to General Media (Images, Audio, CDN URLs)
     if isinstance(data, str):
         if data.startswith("http") and (
-            any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play", "dlink"])
+            any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".webp", ".mp3", "video", "stream", "download", "play", "dlink"])
             or any(cdn in data.lower() for cdn in ["sc-cdn.net", "snapchat.com", "cf-st.sc-cdn.net", "bolt-gcdn"])
         ):
             return data
@@ -117,9 +117,9 @@ def extract_media_url(data):
     if isinstance(data, dict):
         priority_keys = [
             "video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", 
-            "image_url", "audio_url", "direct_link", "dlink", "downloadLink", "url", "link", 
+            "image_url", "image", "photo", "audio_url", "direct_link", "dlink", "downloadLink", "url", "link", 
             "secure_url", "file_url", "mediaUrl", "storyUrl", "snapUrl", "story_url", "snap_url", 
-            "snap_media", "media", "snap"
+            "snap_media", "media", "snap", "result"
         ]
         for key in priority_keys:
             val = data.get(key)
@@ -415,11 +415,15 @@ def execute_request(message, endpoint_list, query_label, search_val):
 
     for ep, params in endpoint_list:
         try:
-            r = requests.get(ep, params=params, headers=headers, timeout=20)
+            r = requests.get(ep, params=params, headers=headers, timeout=25)
             if r.status_code == 200:
                 try:
                     res = r.json()
                 except Exception:
+                    # If endpoint returns direct binary photo content
+                    if "image" in r.headers.get("Content-Type", "") or "AI Image" in query_label:
+                        final_response = {"direct_image": r.content}
+                        break
                     continue
                 
                 if isinstance(res, dict):
@@ -446,6 +450,36 @@ def execute_request(message, endpoint_list, query_label, search_val):
     global total_lookups
     total_lookups += 1
     save_data()
+
+    # Special Direct Handling for AI Image Generator (Sends Actual Photo via Bot)
+    if query_label == "AI Image Generator":
+        photo_sent = False
+        caption_text = (
+            f"🎨 <b>AI Generated Image</b>\n"
+            f"──────────────────────────────\n"
+            f"📌 <b>Prompt:</b> <code>{search_val}</code>\n"
+            f"──────────────────────────────\n"
+            f"⚡ <b>Powered By: @team_lifexy</b>"
+        )
+        if isinstance(final_response, dict) and "direct_image" in final_response:
+            try:
+                bot.send_photo(message.chat.id, final_response["direct_image"], caption=caption_text, parse_mode="HTML")
+                photo_sent = True
+            except Exception:
+                pass
+        elif media_url:
+            try:
+                bot.send_photo(message.chat.id, media_url, caption=caption_text, parse_mode="HTML")
+                photo_sent = True
+            except Exception:
+                pass
+        
+        if photo_sent:
+            try:
+                bot.delete_message(message.chat.id, wait_msg.message_id)
+            except Exception:
+                pass
+            return
 
     # Inline Markup for Media Links if Extracted
     markup = None
@@ -652,4 +686,3 @@ if __name__ == "__main__":
     print("👑 CROWN BOT M4 ULTRA ONLINE - ALL APIs ACTIVE!")
     keep_alive()
     bot.infinity_polling()
-
