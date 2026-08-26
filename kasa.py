@@ -19,7 +19,7 @@ def home():
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>👑 CROWN BOT M4</title>
+        <title>👑 CROWN BOT M4 ULTRA</title>
         <style>
             body { background: #0b0f19; color: #38bdf8; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
             .card { background: #1e293b; padding: 40px; border-radius: 16px; text-align: center; border: 1px solid #334155; }
@@ -104,7 +104,7 @@ def extract_media_url(data):
         return None
 
     if isinstance(data, dict):
-        priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", "image_url", "direct_link", "url", "link"]
+        priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", "image_url", "direct_link", "url", "link", "hd_profile_pic_url_info"]
         for key in priority_keys:
             val = data.get(key)
             if isinstance(val, str) and val.startswith("http"):
@@ -158,7 +158,7 @@ def main_menu():
         InlineKeyboardButton("📦 Terabox Video Streamer", callback_data="menu_terabox")
     )
     markup.add(
-        InlineKeyboardButton("📸 Instagram Downloader", callback_data="menu_instagram"),
+        InlineKeyboardButton("📸 Instagram Suite", callback_data="menu_instagram"),
         InlineKeyboardButton("🪪 Identity & Vehicle Info", callback_data="menu_identity")
     )
     markup.add(
@@ -191,8 +191,12 @@ def terabox_menu():
 def instagram_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("⬇️ Reel / Post Video Download", callback_data="ask_ig_dl"),
-        InlineKeyboardButton("👤 Profile Search", callback_data="ask_ig_best")
+        InlineKeyboardButton("⬇️ Reel / Post Video", callback_data="ask_ig_dl"),
+        InlineKeyboardButton("👤 Full Profile Info", callback_data="ask_ig_profile")
+    )
+    markup.add(
+        InlineKeyboardButton("📊 Account Stats", callback_data="ask_ig_stats"),
+        InlineKeyboardButton("🆔 Instagram User ID", callback_data="ask_ig_user")
     )
     markup.add(
         InlineKeyboardButton("📸 Media Files", callback_data="ask_ig_media"),
@@ -208,7 +212,7 @@ def identity_menu():
         InlineKeyboardButton("📧 Email Intelligence", callback_data="ask_email_info")
     )
     markup.add(
-        InlineKeyboardButton("📱 Phone Lookup", callback_data="ask_phone"),
+        InlineKeyboardButton("📱 Phone Tracker", callback_data="ask_phone"),
         InlineKeyboardButton("📞 Truecaller Search", callback_data="ask_truecaller")
     )
     markup.add(
@@ -222,7 +226,7 @@ def geo_menu():
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
         InlineKeyboardButton("🌐 Website Scraper", callback_data="ask_web"),
-        InlineKeyboardButton("📍 IP Info Lookup", callback_data="ask_ip1")
+        InlineKeyboardButton("📍 IP Info Lookup", callback_data="ask_ip")
     )
     markup.add(
         InlineKeyboardButton("🌤️ Weather Search", callback_data="ask_weather"),
@@ -303,11 +307,13 @@ def handle_callbacks(call):
             "ask_tb_v2": "📥 <b>Send Terabox Link for High-Speed Download:</b>",
             
             "ask_ig_dl": "⬇️ <b>Send Instagram Reel or Video Link:</b>\n<i>(e.g., https://www.instagram.com/reel/...)</i>",
-            "ask_ig_best": "👤 <b>Enter Instagram Username:</b>",
+            "ask_ig_profile": "👤 <b>Enter Instagram Username for Profile Details:</b>",
+            "ask_ig_stats": "📊 <b>Enter Instagram Username for Stats:</b>",
+            "ask_ig_user": "🆔 <b>Enter Instagram Username to Fetch ID:</b>",
             "ask_ig_media": "📸 <b>Enter Instagram Username for Media:</b>",
             "ask_ig_posts": "📝 <b>Enter Instagram Username for Posts:</b>",
             
-            "ask_vehicle": "🚗 <b>Enter Vehicle Number (e.g., MH12DE1433):</b>",
+            "ask_vehicle": "🚗 <b>Enter Vehicle Registration Number (e.g., MH12DE1433):</b>",
             "ask_email_info": "📧 <b>Enter Target Email Address:</b>",
             "ask_phone": "📱 <b>Enter 10-Digit Mobile Number:</b>",
             "ask_truecaller": "📞 <b>Enter Mobile Number for Truecaller:</b>",
@@ -315,7 +321,7 @@ def handle_callbacks(call):
             "ask_gst": "🏢 <b>Enter GSTIN:</b>",
             
             "ask_web": "🌐 <b>Enter Full Website URL:</b>",
-            "ask_ip1": "📍 <b>Enter IP Address:</b>",
+            "ask_ip": "📍 <b>Enter IP Address (e.g., 8.8.8.8):</b>",
             "ask_weather": "🌤️ <b>Enter City Name:</b>",
             "ask_github": "💻 <b>Enter GitHub Username / Term:</b>",
             
@@ -329,7 +335,7 @@ def handle_callbacks(call):
 
     bot.answer_callback_query(call.id)
 
-# ================= ENHANCED TERABOX HANDLER =================
+# ================= TERABOX HANDLER =================
 def execute_terabox_call(message, search_val):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -342,6 +348,7 @@ def execute_terabox_call(message, search_val):
     clean_url = clean_terabox_url(search_val)
     
     endpoints = [
+        (f"{BASE_URL_OSINT}/terabox-video-v2", "video_downloadv2"),
         (f"{BASE_URL_OSINT}/terabox-stream-v2", "video_streamv2"),
         (f"{BASE_URL_OSINT}/terabox-stream-v3", "video_streamv3"),
         (f"{BASE_URL_OSINT}/terabox-stream", "video_stream")
@@ -385,7 +392,74 @@ def execute_terabox_call(message, search_val):
     else:
         bot.edit_message_text("❌ <b>Could not extract stream.</b> Please verify your Terabox URL and try again.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
-# ================= FIXED & DEDICATED INSTAGRAM HANDLER =================
+# ================= TRUECALLER HANDLER (FIXED FOR API ERROR) =================
+def execute_truecaller_call(message, search_val):
+    user_id = message.from_user.id
+    user = get_user(user_id)
+
+    if user_id != ADMIN_ID and user["credits"] < 1:
+        bot.reply_to(message, "❌ <i>Credits exhausted. Contact @team_lifexy</i>", parse_mode="HTML")
+        return
+
+    wait_msg = bot.reply_to(message, "📞⚡ <b><i>Searching Truecaller database...</i></b>", parse_mode="HTML")
+
+    clean_num = re.sub(r"\D", "", search_val)
+    if len(clean_num) > 10:
+        clean_num = clean_num[-10:]
+
+    endpoints = [
+        (f"{BASE_URL_MAIN}/ph-tracker", {"token": TOKEN, "number": clean_num}),
+        (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": clean_num}),
+        (f"{BASE_URL_MAIN}/truecaller", {"token": TOKEN, "number": clean_num})
+    ]
+
+    final_response = None
+    for ep, params in endpoints:
+        try:
+            r = requests.get(ep, params=params, timeout=12)
+            if r.status_code == 200:
+                res = r.json()
+                if isinstance(res, dict) and res.get("success") == False and "Invalid" in str(res.get("error", "")):
+                    continue
+                if isinstance(res, dict) and "error" in res and "Invalid" in str(res["error"]):
+                    continue
+                final_response = res
+                break
+        except Exception:
+            continue
+
+    if user_id != ADMIN_ID:
+        user["credits"] -= 1
+    user["lookups"] += 1
+    global total_lookups
+    total_lookups += 1
+    save_data()
+
+    if final_response:
+        result_str = json.dumps(final_response, indent=2, ensure_ascii=False)
+        scrub_targets = [r"(?i)onlyh4ckerzon", r"(?i)onlyhackerzon", r"(?i)rohit", r"(?i)@froxtdevil", r"(?i)optimusprime"]
+        for target in scrub_targets:
+            result_str = re.sub(target, "Crown 👑", result_str)
+
+        if len(result_str) > 3000:
+            result_str = result_str[:3000] + "\n... [Output Truncated]"
+
+        out_msg = (
+            f"👑 <b>Crown Truecaller Intelligence (M4)</b> 👑\n"
+            f"──────────────────────────────\n"
+            f"🔍 <b>Input Number:</b> <code>{clean_num}</code>\n"
+            f"──────────────────────────────\n"
+            f"<b>Output Data:</b>\n"
+            f"<pre>{result_str}</pre>\n"
+            f"──────────────────────────────\n"
+            f"⚡ <b>Powered By: @team_lifexy</b>"
+        )
+        bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        auto_delete(message.chat.id, wait_msg.message_id)
+    else:
+        bot.edit_message_text("❌ <b>Truecaller Search Failed!</b> Service is temporarily unavailable or invalid key.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+
+# ================= INSTAGRAM HANDLER (ENHANCED V1/V2/V3 + AUTO MEDIA DIRECT SEND) =================
 def execute_instagram_call(message, action_type, search_val):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -394,7 +468,7 @@ def execute_instagram_call(message, action_type, search_val):
         bot.reply_to(message, "❌ <i>Credits exhausted. Contact @team_lifexy</i>", parse_mode="HTML")
         return
 
-    wait_msg = bot.reply_to(message, "📸⚡ <b><i>Fetching Instagram media...</i></b>", parse_mode="HTML")
+    wait_msg = bot.reply_to(message, "📸⚡ <b><i>Fetching Instagram media & profile data...</i></b>", parse_mode="HTML")
 
     txt_clean = search_val.strip()
     is_url = "instagram.com" in txt_clean.lower() or "instagr.am" in txt_clean.lower()
@@ -403,17 +477,18 @@ def execute_instagram_call(message, action_type, search_val):
     endpoints_to_try = []
 
     if is_url:
-        # If user passed an Instagram Post/Reel URL
         endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-download", {"key": OSINT_KEY, "type": "download", "url": txt_clean}))
         endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-posts-v2", {"key": OSINT_KEY, "type": "posts", "url": txt_clean}))
     else:
-        # If user passed Username instead of URL
-        if action_type == "download":
-            action_type = "profile"
-        
-        if action_type in ["profile", "best"]:
-            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-best-v1", {"key": OSINT_KEY, "type": "best", "username": clean_username}))
-            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-media-v1", {"key": OSINT_KEY, "type": "media", "username": clean_username}))
+        if action_type == "profile":
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-profile-v1", {"key": OSINT_KEY, "type": "profile", "username": clean_username}))
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-profile-v2", {"key": OSINT_KEY, "type": "profile", "username": clean_username}))
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-profile-v3", {"key": OSINT_KEY, "type": "profile", "username": clean_username}))
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-profile-v3-v2", {"key": OSINT_KEY, "type": "profile_v2", "username": clean_username}))
+        elif action_type == "stats":
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-stats-v1", {"key": OSINT_KEY, "type": "stats", "username": clean_username}))
+        elif action_type == "user":
+            endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-user-v1", {"key": OSINT_KEY, "type": "user", "username": clean_username}))
         elif action_type == "posts":
             endpoints_to_try.append((f"{BASE_URL_OSINT}/instagram-posts-v2", {"key": OSINT_KEY, "type": "posts", "username": clean_username}))
         else:
@@ -422,18 +497,14 @@ def execute_instagram_call(message, action_type, search_val):
 
     extracted_media = None
     final_response = None
-    has_blocked_error = False
 
     for ep, params in endpoints_to_try:
         try:
-            r = requests.get(ep, params=params, timeout=20)
+            r = requests.get(ep, params=params, timeout=18)
             if r.status_code == 200:
                 res = r.json()
-                
-                # Check for server block inside response payload
                 res_str = json.dumps(res).lower()
                 if "blocked" in res_str or "http 401" in res_str or "\"ok\":false" in res_str:
-                    has_blocked_error = True
                     continue
 
                 extracted_media = extract_media_url(res)
@@ -451,22 +522,21 @@ def execute_instagram_call(message, action_type, search_val):
     total_lookups += 1
     save_data()
 
-    # If valid Video/Photo URL extracted, send direct Telegram file!
     if extracted_media:
-        bot.delete_message(message.chat.id, wait_msg.message_id)
-        markup = InlineKeyboardMarkup(row_width=1)
+        markup = InlineKeyboardMarkup(row_width=2)
         markup.add(
-            InlineKeyboardButton("▶️ Open Media in Browser", url=extracted_media),
-            InlineKeyboardButton("📥 Direct Download File", url=extracted_media)
+            InlineKeyboardButton("▶️ Open in Chrome", url=extracted_media),
+            InlineKeyboardButton("📥 Direct Download", url=extracted_media)
         )
 
         is_video = any(ext in extracted_media.lower() for ext in [".mp4", ".mov", "m3u8", "video"])
         sent_successfully = False
         try:
+            bot.delete_message(message.chat.id, wait_msg.message_id)
             if is_video:
-                bot.send_video(message.chat.id, extracted_media, caption="📸 <b>Instagram Video Downloaded Successfully!</b>\n⚡ <i>Powered by @team_lifexy</i>", reply_markup=markup, parse_mode="HTML")
+                bot.send_video(message.chat.id, extracted_media, caption="📸 <b>Instagram Video Downloaded!</b>\n⚡ <i>Powered by @team_lifexy</i>", reply_markup=markup, parse_mode="HTML")
             else:
-                bot.send_photo(message.chat.id, extracted_media, caption="📸 <b>Instagram Media Downloaded Successfully!</b>\n⚡ <i>Powered by @team_lifexy</i>", reply_markup=markup, parse_mode="HTML")
+                bot.send_photo(message.chat.id, extracted_media, caption="📸 <b>Instagram Media Ready!</b>\n⚡ <i>Powered by @team_lifexy</i>", reply_markup=markup, parse_mode="HTML")
             sent_successfully = True
         except Exception:
             pass
@@ -474,13 +544,12 @@ def execute_instagram_call(message, action_type, search_val):
         if not sent_successfully:
             bot.send_message(
                 message.chat.id,
-                f"📸 <b>Instagram Media Ready!</b>\n\nClick below to stream or download:",
+                f"📸 <b>Instagram Media Link Ready!</b>\n\nTap below to open or download in Chrome:",
                 reply_markup=markup,
                 parse_mode="HTML"
             )
         return
 
-    # If profile data or raw response fetched
     if final_response:
         result_str = json.dumps(final_response, indent=2, ensure_ascii=False)
         scrub_targets = [r"(?i)onlyh4ckerzon", r"(?i)onlyhackerzon", r"(?i)rohit", r"(?i)@froxtdevil", r"(?i)optimusprime"]
@@ -503,12 +572,121 @@ def execute_instagram_call(message, action_type, search_val):
         bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
     else:
-        msg_text = (
-            f"❌ <b>Instagram Request Failed!</b>\n\n"
-            f"• <b>Reason:</b> Instagram server restriction or invalid URL.\n"
-            f"• <b>Note:</b> Make sure to paste a valid Instagram Reel/Post link (e.g. <code>https://www.instagram.com/reel/...</code>) for downloading media."
+        bot.edit_message_text("❌ <b>Instagram Request Failed!</b> Unable to fetch data from API.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+
+# ================= VEHICLE HANDLER (V1, V2, V3, V4 + NUMBER FALLBACK) =================
+def execute_vehicle_call(message, rc_number):
+    user_id = message.from_user.id
+    user = get_user(user_id)
+
+    if user_id != ADMIN_ID and user["credits"] < 1:
+        bot.reply_to(message, "❌ <i>Credits exhausted. Contact @team_lifexy</i>", parse_mode="HTML")
+        return
+
+    wait_msg = bot.reply_to(message, "🚗⚡ <b><i>Searching Vehicle RC Records...</i></b>", parse_mode="HTML")
+    rc_clean = rc_number.upper().strip()
+
+    endpoints = [
+        (f"{BASE_URL_OSINT}/vehicle-number", {"key": OSINT_KEY, "number": rc_clean}),
+        (f"{BASE_URL_OSINT}/vehicle-v1", {"key": OSINT_KEY, "type": "v1", "rc": rc_clean}),
+        (f"{BASE_URL_OSINT}/vehicle-v2", {"key": OSINT_KEY, "type": "v2", "rc": rc_clean}),
+        (f"{BASE_URL_OSINT}/vehicle-v3", {"key": OSINT_KEY, "type": "v3", "rc": rc_clean}),
+        (f"{BASE_URL_OSINT}/vehicle-v4", {"key": OSINT_KEY, "type": "v4", "rc": rc_clean})
+    ]
+
+    final_response = None
+    for ep, params in endpoints:
+        try:
+            r = requests.get(ep, params=params, timeout=15)
+            if r.status_code == 200:
+                res = r.json()
+                if isinstance(res, dict) and (res.get("success") == False or "error" in res):
+                    continue
+                final_response = res
+                break
+        except Exception:
+            continue
+
+    if user_id != ADMIN_ID:
+        user["credits"] -= 1
+    user["lookups"] += 1
+    global total_lookups
+    total_lookups += 1
+    save_data()
+
+    if final_response:
+        result_str = json.dumps(final_response, indent=2, ensure_ascii=False)
+        scrub_targets = [r"(?i)onlyh4ckerzon", r"(?i)onlyhackerzon", r"(?i)rohit", r"(?i)@froxtdevil", r"(?i)optimusprime"]
+        for target in scrub_targets:
+            result_str = re.sub(target, "Crown 👑", result_str)
+
+        if len(result_str) > 3000:
+            result_str = result_str[:3000] + "\n... [Output Truncated]"
+
+        out_msg = (
+            f"🚗 <b>Crown Vehicle Intelligence (M4)</b> 🚗\n"
+            f"──────────────────────────────\n"
+            f"🔍 <b>Vehicle Number:</b> <code>{rc_clean}</code>\n"
+            f"──────────────────────────────\n"
+            f"<b>Output Data:</b>\n"
+            f"<pre>{result_str}</pre>\n"
+            f"──────────────────────────────\n"
+            f"⚡ <b>Powered By: @team_lifexy</b>"
         )
-        bot.edit_message_text(msg_text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        auto_delete(message.chat.id, wait_msg.message_id)
+    else:
+        bot.edit_message_text("❌ <b>Vehicle Lookup Failed!</b> No records found or API error.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+
+# ================= IP LOOKUP HANDLER (V1 & V2 FALLBACK) =================
+def execute_ip_call(message, ip_val):
+    user_id = message.from_user.id
+    user = get_user(user_id)
+
+    if user_id != ADMIN_ID and user["credits"] < 1:
+        bot.reply_to(message, "❌ <i>Credits exhausted. Contact @team_lifexy</i>", parse_mode="HTML")
+        return
+
+    wait_msg = bot.reply_to(message, "🌐⚡ <b><i>Fetching IP Geo & Network Info...</i></b>", parse_mode="HTML")
+
+    endpoints = [
+        (f"{BASE_URL_OSINT}/ip-v1", {"key": OSINT_KEY, "query": ip_val}),
+        (f"{BASE_URL_OSINT}/ip-v2", {"key": OSINT_KEY, "ip": ip_val})
+    ]
+
+    final_response = None
+    for ep, params in endpoints:
+        try:
+            r = requests.get(ep, params=params, timeout=12)
+            if r.status_code == 200:
+                final_response = r.json()
+                break
+        except Exception:
+            continue
+
+    if user_id != ADMIN_ID:
+        user["credits"] -= 1
+    user["lookups"] += 1
+    global total_lookups
+    total_lookups += 1
+    save_data()
+
+    if final_response:
+        result_str = json.dumps(final_response, indent=2, ensure_ascii=False)
+        out_msg = (
+            f"🌐 <b>Crown IP Intelligence (M4)</b> 🌐\n"
+            f"──────────────────────────────\n"
+            f"🔍 <b>IP Query:</b> <code>{ip_val}</code>\n"
+            f"──────────────────────────────\n"
+            f"<b>Output Data:</b>\n"
+            f"<pre>{result_str}</pre>\n"
+            f"──────────────────────────────\n"
+            f"⚡ <b>Powered By: @team_lifexy</b>"
+        )
+        bot.edit_message_text(out_msg, message.chat.id, wait_msg.message_id, parse_mode="HTML")
+        auto_delete(message.chat.id, wait_msg.message_id)
+    else:
+        bot.edit_message_text("❌ <b>IP Lookup Failed!</b> API unavailable.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
 # ================= GENERAL API ENGINE =================
 def execute_api_call(message, endpoint_url, query_label, search_val, params=None):
@@ -648,12 +826,18 @@ def handle_queries(message):
             execute_terabox_call(message, txt)
             return
 
-        # Instagram Handlers (UPDATED & ROUTED SAFELY)
+        # Instagram Handlers
         elif current_step == "ask_ig_dl":
             execute_instagram_call(message, "download", txt)
             return
-        elif current_step == "ask_ig_best":
+        elif current_step == "ask_ig_profile":
             execute_instagram_call(message, "profile", txt)
+            return
+        elif current_step == "ask_ig_stats":
+            execute_instagram_call(message, "stats", txt)
+            return
+        elif current_step == "ask_ig_user":
+            execute_instagram_call(message, "user", txt)
             return
         elif current_step == "ask_ig_media":
             execute_instagram_call(message, "media", txt)
@@ -664,9 +848,7 @@ def handle_queries(message):
 
         # Identity Handlers
         elif current_step == "ask_vehicle":
-            url = f"{BASE_URL_OSINT}/vehicle-v1"
-            params = {"key": OSINT_KEY, "type": "v1", "rc": txt.upper()}
-            execute_api_call(message, url, "VEHICLE RC LOOKUP", txt.upper(), params=params)
+            execute_vehicle_call(message, txt)
             return
         elif current_step == "ask_email_info":
             url = f"{BASE_URL_OSINT}/email-info"
@@ -679,9 +861,7 @@ def handle_queries(message):
             execute_api_call(message, url, "PHONE TRACKER", txt, params=params)
             return
         elif current_step == "ask_truecaller":
-            url = f"{BASE_URL_OSINT}/truecaller-info"
-            params = {"key": OSINT_KEY, "number": txt}
-            execute_api_call(message, url, "TRUECALLER SEARCH", txt, params=params)
+            execute_truecaller_call(message, txt)
             return
         elif current_step == "ask_pan":
             url = f"{BASE_URL_OSINT}/pan-info"
@@ -700,10 +880,8 @@ def handle_queries(message):
             params = {"key": OSINT_KEY, "url": txt}
             execute_api_call(message, url, "WEBSITE SCRAPER", txt, params=params)
             return
-        elif current_step == "ask_ip1":
-            url = f"{BASE_URL_OSINT}/ip-v1"
-            params = {"key": OSINT_KEY, "query": txt}
-            execute_api_call(message, url, "IP LOOKUP", txt, params=params)
+        elif current_step == "ask_ip":
+            execute_ip_call(message, txt)
             return
         elif current_step == "ask_weather":
             url = f"{BASE_URL_OSINT}/weather-info"
@@ -740,13 +918,9 @@ def handle_queries(message):
         params = {"key": OSINT_KEY, "mail": txt}
         execute_api_call(message, url, "EMAIL INTEL", txt, params=params)
     elif txt.isdigit() and len(txt) == 10:
-        url = f"{BASE_URL_MAIN}/ph-tracker"
-        params = {"token": TOKEN, "number": txt}
-        execute_api_call(message, url, "PHONE RECORD", txt, params=params)
+        execute_truecaller_call(message, txt)
     elif re.match(r"^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$", txt.upper()):
-        url = f"{BASE_URL_OSINT}/vehicle-v1"
-        params = {"key": OSINT_KEY, "type": "v1", "rc": txt.upper()}
-        execute_api_call(message, url, "VEHICLE RC LOOKUP", txt.upper(), params=params)
+        execute_vehicle_call(message, txt.upper())
     else:
         err = bot.reply_to(message, "⚠️ <b>Unrecognized Input!</b>\n<i>Please press /start to open the interactive main menu.</i>", parse_mode="HTML")
         auto_delete(err.chat.id, err.message_id)
@@ -756,4 +930,3 @@ if __name__ == "__main__":
     print("👑 CROWN BOT M4 ULTRA IS READY AND RUNNING!")
     keep_alive()
     bot.infinity_polling()
-
