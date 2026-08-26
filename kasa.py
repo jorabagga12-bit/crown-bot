@@ -424,7 +424,12 @@ def execute_request(message, endpoint_list, query_label, search_val):
                 
                 if isinstance(res, dict):
                     err_msg = str(res.get("error", "")).lower()
-                    if "invalid" in err_msg or "inactive" in err_msg or res.get("success") == False:
+                    nested_data = res.get("data")
+                    nested_err = ""
+                    if isinstance(nested_data, dict):
+                        nested_err = str(nested_data.get("error", "")).lower()
+
+                    if "invalid" in err_msg or "inactive" in err_msg or "failed to fetch" in err_msg or "failed to fetch" in nested_err or "http 403" in nested_err or res.get("success") == False:
                         continue
                 
                 final_response = res
@@ -555,7 +560,12 @@ def handle_text(message):
                 (f"{BASE_URL_OSINT}/snapchat-all", {"key": OSINT_KEY, "action": "stories", "username": txt})
             ], "Snapchat Story"),
 
-            "ask_tc": ([(f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})], "Truecaller Info"),
+            "ask_tc": ([
+                (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt}),
+                (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "num": txt}),
+                (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "phone": txt}),
+                (f"{BASE_URL_DARRIFY}/ph-tracker", {"token": DARRIFY_TOKEN, "number": txt})
+            ], "Truecaller Info"),
             "ask_email": ([(f"{BASE_URL_OSINT}/email-info", {"key": OSINT_KEY, "mail": txt})], "Email Info"),
             "ask_imei": ([(f"{BASE_URL_OSINT}/imei-info", {"key": OSINT_KEY, "imei_number": txt})], "IMEI Info"),
 
@@ -623,8 +633,8 @@ def handle_text(message):
         execute_request(message, [(f"{BASE_URL_OSINT}/pincode-info", {"key": OSINT_KEY, "pincode": txt})], "Pincode Info", txt)
     elif txt.isdigit() and len(txt) == 10:
         execute_request(message, [
-            (f"{BASE_URL_DARRIFY}/ph-tracker", {"token": DARRIFY_TOKEN, "number": txt}),
-            (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})
+            (f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt}),
+            (f"{BASE_URL_DARRIFY}/ph-tracker", {"token": DARRIFY_TOKEN, "number": txt})
         ], "Phone Tracker / Truecaller", txt)
     elif "1024terabox.com" in txt.lower() or "terabox.com" in txt.lower() or "terabox.app" in txt.lower():
         execute_request(message, [
@@ -642,3 +652,4 @@ if __name__ == "__main__":
     print("👑 CROWN BOT M4 ULTRA ONLINE - ALL APIs ACTIVE!")
     keep_alive()
     bot.infinity_polling()
+
