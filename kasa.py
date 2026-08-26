@@ -188,8 +188,8 @@ def get_reply_keyboard():
         KeyboardButton("🪪 Aadhaar Card Lookup")
     )
     markup.add(
-        KeyboardButton("📧 Email Info Lookup"),
-        KeyboardButton("🎮 BGMI Player Info")
+        KeyboardButton("🚗 Vehicle RC Info"),  # <-- VEHICLE ADDED HERE
+        KeyboardButton("📧 Email Info Lookup")
     )
     markup.add(
         KeyboardButton("🏢 GST Search"),
@@ -200,6 +200,7 @@ def get_reply_keyboard():
         KeyboardButton("🌐 IP Info")
     )
     markup.add(
+        KeyboardButton("🎮 BGMI Player Info"),
         KeyboardButton("💎 My Credits")
     )
     return markup
@@ -226,13 +227,16 @@ def identity_menu():
     )
     markup.add(
         InlineKeyboardButton("📇 PAN Card", callback_data="ask_pan"),
-        InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst")
+        InlineKeyboardButton("🚗 Vehicle RC Info", callback_data="ask_vehicle") # <-- VEHICLE ADDED HERE
     )
     markup.add(
-        InlineKeyboardButton("🏦 IFSC Bank", callback_data="ask_ifsc"),
-        InlineKeyboardButton("📱 IMEI Info", callback_data="ask_imei")
+        InlineKeyboardButton("🏢 GST Search", callback_data="ask_gst"),
+        InlineKeyboardButton("🏦 IFSC Bank", callback_data="ask_ifsc")
     )
-    markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
+    markup.add(
+        InlineKeyboardButton("📱 IMEI Info", callback_data="ask_imei"),
+        InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main")
+    )
     return markup
 
 def social_menu():
@@ -273,21 +277,24 @@ def ai_menu():
     markup.add(InlineKeyboardButton("🔙 Back to Main Menu", callback_data="menu_main"))
     return markup
 
-# ================= START COMMAND =================
+# ================= START COMMAND (BEAUTIFUL UI) =================
 @bot.message_handler(commands=["start"])
 def start(message):
     get_user(message.from_user.id)
     user_steps[message.from_user.id] = None 
 
+    # NEW BEAUTIFUL UI FOR START COMMAND
     welcome_text = (
-        f"<b>👑 CROWN X MONEY DEVELOPER VIP OSINT 👑</b>\n"
+        f"🌟 <b><u>𝗪𝗘𝗟𝗖𝗢𝗠𝗘 𝗧𝗢 𝗖𝗥𝗢𝗪𝗡 𝗫 𝗠𝗢𝗡𝗘𝗬 𝗩𝗜𝗣</u></b> 🌟\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"👋 Welcome to the Database, <b>{message.from_user.first_name}</b>!\n\n"
-        f"👤 <b>USER DASHBOARD</b>\n"
-        f" ├ <b>Status:</b> 🟢 <i>Secured & Active</i>\n"
-        f" ├ <b>Access:</b> VIP Node Terminal\n"
-        f" └ <b>System:</b> 30+ Live Trackers\n\n"
-        f"⚡ <i>Tap a category below or use the buttons below:</i>\n"
+        f"👋 Hello <b>{message.from_user.first_name}</b>,\n"
+        f"<i>Welcome to the most powerful OSINT database!</i>\n\n"
+        f"💻 <b><u>𝗦𝗬𝗦𝗧𝗘𝗠 𝗗𝗔𝗦𝗛𝗕𝗢𝗔𝗥𝗗</u></b>\n"
+        f" ├ <b>Status:</b> 🟢 <i>Premium Node Active</i> ⚡\n"
+        f" ├ <b>Access Level:</b> 👑 <i>VIP Terminal</i>\n"
+        f" └ <b>Available Tools:</b> 🌐 <i>35+ Live Trackers</i>\n\n"
+        f"🛡️ <i>Your connection is fully encrypted. Select a tool from the menu below to start data extraction.</i>\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
     )
 
     try:
@@ -339,6 +346,7 @@ def handle_callbacks(call):
             "ask_phone": "📱 <i>Send 10-digit Phone Number.</i>",
             "ask_aadhar": "🪪 <i>Send 12-digit Aadhaar Number.</i>",
             "ask_pan": "📇 <i>Send 10-character PAN Card Number.</i>",
+            "ask_vehicle": "🚗 <i>Send Vehicle Registration Number (e.g. MH01AB1234).</i>", # <-- VEHICLE PROMPT ADDED
             "ask_gst": "🏢 <i>Send 15-character GSTIN Number.</i>",
             "ask_ifsc": "🏦 <i>Send Bank IFSC Code.</i>",
             "ask_imei": "📱 <i>Send 15-digit IMEI Number.</i>",
@@ -439,7 +447,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val):
 def handle_queries(message):
     txt = message.text.strip()
     user_id = message.from_user.id
-
+    
     # 0. Handle Reply Keyboard Button Clicks
     if txt == "🇮🇳 Indian Number Lookup":
         user_steps[user_id] = "ask_phone"
@@ -448,6 +456,10 @@ def handle_queries(message):
     elif txt == "🪪 Aadhaar Card Lookup":
         user_steps[user_id] = "ask_aadhar"
         bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send 12-digit Aadhaar Number.</i>", parse_mode="HTML")
+        return
+    elif txt == "🚗 Vehicle RC Info": # <-- KEYBOARD BUTTON HANDLER
+        user_steps[user_id] = "ask_vehicle"
+        bot.reply_to(message, "👑 <b>CROWN TARGET LOCKED:</b>\n<i>Send Vehicle Registration Number (e.g. MH01AB1234).</i>", parse_mode="HTML")
         return
     elif txt == "📧 Email Info Lookup":
         user_steps[user_id] = "ask_email"
@@ -500,6 +512,11 @@ def handle_queries(message):
         elif current_step == "ask_aadhar":
             url = f"{BASE_URL_MAIN}/aadhar-info?token={TOKEN}&id={txt}"
             execute_api_call(message, url, "AADHAAR NUMBER", txt)
+            return
+        elif current_step == "ask_vehicle": # <-- VEHICLE API ROUTING ADDED
+            clean_rc = txt.replace(" ", "").upper()
+            url = f"{BASE_URL_OSINT}/vehicle-info?key={OSINT_KEY}&vehicle={clean_rc}"
+            execute_api_call(message, url, "VEHICLE RC INFO", clean_rc)
             return
         elif current_step == "ask_ig_prof":
             url = f"{BASE_URL_OSINT}/instagram-profile-v1?key={OSINT_KEY}&type=profile&username={txt}"
@@ -571,6 +588,7 @@ def handle_queries(message):
             return
 
     # 2. Auto-Detect Smart Routing
+    clean_txt = txt.replace(" ", "").upper()
     if txt.isdigit() and len(txt) == 10:
         url = f"{BASE_URL_MAIN}/ph-tracker?token={TOKEN}&number={txt}"
         execute_api_call(message, url, "PHONE RECORD", txt)
@@ -580,9 +598,9 @@ def handle_queries(message):
     elif re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", txt):
         url = f"{BASE_URL_OSINT}/email-info?key={OSINT_KEY}&mail={txt}"
         execute_api_call(message, url, "EMAIL INFO LOOKUP", txt)
-    elif re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", txt.upper()):
-        url = f"{BASE_URL_OSINT}/pan-info?key={OSINT_KEY}&pan={txt.upper()}"
-        execute_api_call(message, url, "PAN CARD INFO", txt.upper())
+    elif re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", clean_txt):
+        url = f"{BASE_URL_OSINT}/pan-info?key={OSINT_KEY}&pan={clean_txt}"
+        execute_api_call(message, url, "PAN CARD INFO", clean_txt)
     elif txt.isdigit() and len(txt) == 15:
         url = f"{BASE_URL_OSINT}/imei-info?key={OSINT_KEY}&imei_number={txt}"
         execute_api_call(message, url, "IMEI INFO CHECK", txt)
@@ -592,15 +610,18 @@ def handle_queries(message):
     elif txt.isdigit() and len(txt) == 6:
         url = f"{BASE_URL_OSINT}/pincode-info?key={OSINT_KEY}&pincode={txt}"
         execute_api_call(message, url, "PINCODE INFO", txt)
-    elif re.match(r"^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$", txt.upper()):
-        url = f"{BASE_URL_OSINT}/gst-search?key={OSINT_KEY}&gstin={txt.upper()}"
-        execute_api_call(message, url, "GST SEARCH", txt.upper())
+    elif re.match(r"^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$", clean_txt):
+        url = f"{BASE_URL_OSINT}/gst-search?key={OSINT_KEY}&gstin={clean_txt}"
+        execute_api_call(message, url, "GST SEARCH", clean_txt)
     elif re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", txt):
         url = f"{BASE_URL_OSINT}/ip-v2?key={OSINT_KEY}&ip={txt}"
         execute_api_call(message, url, "IP INFO V2", txt)
-    elif re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", txt.upper()):
-        url = f"{BASE_URL_OSINT}/ifsc-info?key={OSINT_KEY}&ifsc={txt.upper()}"
-        execute_api_call(message, url, "BANK IFSC INFO", txt.upper())
+    elif re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", clean_txt):
+        url = f"{BASE_URL_OSINT}/ifsc-info?key={OSINT_KEY}&ifsc={clean_txt}"
+        execute_api_call(message, url, "BANK IFSC INFO", clean_txt)
+    elif re.match(r"^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$", clean_txt): # <-- VEHICLE NUMBER AUTO DETECT
+        url = f"{BASE_URL_OSINT}/vehicle-info?key={OSINT_KEY}&vehicle={clean_rc}"
+        execute_api_call(message, url, "VEHICLE RC INFO", clean_rc)
     else:
         msg = bot.reply_to(message, "❌ <b>Format Unidentified!</b>\n<i>Please select a tool from the /start menu first.</i>", parse_mode="HTML")
         auto_delete(msg.chat.id, msg.message_id)
