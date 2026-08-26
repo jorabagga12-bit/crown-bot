@@ -79,12 +79,20 @@ def auto_delete(chat_id, message_id):
 
 def extract_media_url(data):
     if isinstance(data, str):
-        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play", "dlink"]):
+        if data.startswith("http") and (
+            any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play", "dlink"])
+            or any(cdn in data.lower() for cdn in ["sc-cdn.net", "snapchat.com", "cf-st.sc-cdn.net", "bolt-gcdn"])
+        ):
             return data
         return None
 
     if isinstance(data, dict):
-        priority_keys = ["video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", "image_url", "audio_url", "direct_link", "dlink", "downloadLink", "url", "link", "secure_url", "file_url"]
+        priority_keys = [
+            "video_url", "stream_url", "download_url", "play_url", "media_url", "display_url", 
+            "image_url", "audio_url", "direct_link", "dlink", "downloadLink", "url", "link", 
+            "secure_url", "file_url", "mediaUrl", "storyUrl", "snapUrl", "story_url", "snap_url", 
+            "snap_media", "media", "snap"
+        ]
         for key in priority_keys:
             val = data.get(key)
             if isinstance(val, str) and val.startswith("http"):
@@ -490,9 +498,18 @@ def handle_text(message):
             "ask_ig_stats": ([(f"{BASE_URL_OSINT}/instagram-stats-v1", {"key": OSINT_KEY, "type": "stats", "username": txt})], "Instagram Stats"),
             "ask_ig_user": ([(f"{BASE_URL_OSINT}/instagram-user-v1", {"key": OSINT_KEY, "type": "user", "username": txt})], "Instagram User ID"),
 
-            "ask_snap_all": ([(f"{BASE_URL_OSINT}/snapchat-all", {"key": OSINT_KEY, "action": "all", "username": txt})], "Snapchat All Data"),
-            "ask_snap_high": ([(f"{BASE_URL_OSINT}/snapchat-highlight", {"key": OSINT_KEY, "action": "highlights", "username": txt})], "Snapchat Highlight"),
-            "ask_snap_story": ([(f"{BASE_URL_OSINT}/snapchat-story", {"key": OSINT_KEY, "action": "stories", "username": txt})], "Snapchat Story"),
+            "ask_snap_all": ([
+                (f"{BASE_URL_OSINT}/snapchat-all", {"key": OSINT_KEY, "action": "all", "username": txt}),
+                (f"{BASE_URL_OSINT}/snapchat-all", {"key": OSINT_KEY, "action": "all", "user": txt})
+            ], "Snapchat All Data"),
+            "ask_snap_high": ([
+                (f"{BASE_URL_OSINT}/snapchat-highlight", {"key": OSINT_KEY, "action": "highlights", "username": txt}),
+                (f"{BASE_URL_OSINT}/snapchat-highlight", {"key": OSINT_KEY, "action": "highlights", "user": txt})
+            ], "Snapchat Highlight"),
+            "ask_snap_story": ([
+                (f"{BASE_URL_OSINT}/snapchat-story", {"key": OSINT_KEY, "action": "stories", "username": txt}),
+                (f"{BASE_URL_OSINT}/snapchat-story", {"key": OSINT_KEY, "action": "stories", "user": txt})
+            ], "Snapchat Story"),
 
             "ask_tc": ([(f"{BASE_URL_OSINT}/truecaller-info", {"key": OSINT_KEY, "number": txt})], "Truecaller Info"),
             "ask_email": ([(f"{BASE_URL_OSINT}/email-info", {"key": OSINT_KEY, "mail": txt})], "Email Info"),
