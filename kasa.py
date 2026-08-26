@@ -303,7 +303,80 @@ def handle_callbacks(call):
 
     bot.answer_callback_query(call.id)
 
-# ================= EXECUTE API ENGINE WITH PARAMS ENCODING & SCRUBBING =================
+# ================= TERABOX SPECIAL VIDEO PLAYER ENGINE =================
+def execute_terabox_call(message, endpoint_url, query_label, search_val, params=None):
+    user_id = message.from_user.id
+    user = get_user(user_id)
+
+    if user_id != ADMIN_ID and user["credits"] < 1:
+        bot.reply_to(message, "❌ <i>Not enough credits. Contact Admin!</i>", parse_mode="HTML")
+        return
+
+    wait_msg = bot.reply_to(message, "🎬🍿 <b><i>CROWN Terabox Video Stream Extract Ho Raha Hai...</i></b>", parse_mode="HTML")
+
+    try:
+        r = requests.get(endpoint_url, params=params, timeout=30)
+        
+        try:
+            api_response = r.json()
+        except Exception:
+            api_response = {}
+
+        stream_link = None
+        
+        # JSON se Stream/Download Direct Link Filter Karna
+        if isinstance(api_response, dict):
+            stream_link = (
+                api_response.get("stream_url") or 
+                api_response.get("download_url") or 
+                api_response.get("url") or 
+                api_response.get("link") or 
+                api_response.get("fast_url")
+            )
+            if not stream_link and isinstance(api_response.get("data"), dict):
+                stream_link = (
+                    api_response["data"].get("download_url") or 
+                    api_response["data"].get("url") or 
+                    api_response["data"].get("stream_url")
+                )
+            elif not stream_link and isinstance(api_response.get("data"), list) and len(api_response["data"]) > 0:
+                item = api_response["data"][0]
+                if isinstance(item, dict):
+                    stream_link = item.get("download_url") or item.get("url") or item.get("stream_url")
+
+        if user_id != ADMIN_ID:
+            user["credits"] -= 1
+
+        user["lookups"] += 1
+        global total_lookups
+        total_lookups += 1
+        save_data()
+
+        # Agar Direct Video Link mil gaya to Play Button dikhao (No JSON Code)
+        if stream_link:
+            markup = InlineKeyboardMarkup(row_width=1)
+            markup.add(
+                InlineKeyboardButton("▶️ WATCH / STREAM VIDEO NOW", url=stream_link),
+                InlineKeyboardButton("📥 FAST DOWNLOAD VIDEO", url=stream_link)
+            )
+            
+            caption_text = (
+                f"👑 <b>CROWN TERABOX VIDEO PLAYER</b> 👑\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🎬 <b>Status:</b> <i>Video Stream Ready!</i>\n"
+                f"🔗 <b>Target:</b> <code>{search_val[:35]}...</code>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👇 <b>Niche 'WATCH / STREAM' button par click karke direct video dekho:</b>"
+            )
+            bot.edit_message_text(caption_text, message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
+            auto_delete(message.chat.id, wait_msg.message_id)
+        else:
+            bot.edit_message_text("❌ <b>Video Extract Error:</b> Terabox link invalid hai ya API video load nahi kar pa rahi.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+
+    except Exception:
+        bot.edit_message_text("❌ <b>Terabox Stream Error:</b> Connection Timeout. Server busy hai.", message.chat.id, wait_msg.message_id, parse_mode="HTML")
+
+# ================= STANDARD API ENGINE WITH PARAMS ENCODING & SCRUBBING =================
 def execute_api_call(message, endpoint_url, query_label, search_val, params=None):
     user_id = message.from_user.id
     user = get_user(user_id)
@@ -315,7 +388,6 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
     wait_msg = bot.reply_to(message, "👑📡 <b><i>Extracting CROWN Live Database...</i></b>", parse_mode="HTML")
 
     try:
-        # Pass parameters cleanly to prevent broken URLs or 404s
         r = requests.get(endpoint_url, params=params, timeout=30)
         
         if r.status_code == 404:
@@ -337,7 +409,6 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
 
         result_json = json.dumps(api_response, indent=2, ensure_ascii=False)
         
-        # 🔴 WATERMARK REPLACER & BRANDING SCRUBBER 🔴
         scrub_patterns = [
             r"(?i)onlyh4ckerzon",
             r"(?i)onlyhackerzon",
@@ -369,7 +440,7 @@ def execute_api_call(message, endpoint_url, query_label, search_val, params=None
         bot.edit_message_text(text, message.chat.id, wait_msg.message_id, parse_mode="HTML")
         auto_delete(message.chat.id, wait_msg.message_id)
 
-    except Exception as e:
+    except Exception:
         bot.edit_message_text(f"❌ <b>Execution Error:</b> <code>System Timeout or API Connection Issue</code>", message.chat.id, wait_msg.message_id, parse_mode="HTML")
 
 # ================= SMART QUERY ROUTER =================
@@ -420,41 +491,40 @@ def handle_queries(message):
 
     # 1. State-Based Routing with Safe Query Encoders
     if current_step:
-        # Website Scraper Fix
         if current_step == "ask_web":
             url = f"{BASE_URL_OSINT}/website-source"
             params = {"key": OSINT_KEY, "url": txt}
             execute_api_call(message, url, "WEBSITE SCRAPER", txt, params=params)
             return
 
-        # Terabox APIs Integration
+        # ALL TERABOX CALLS NOW ROUTE TO SPECIAL TERABOX VIDEO PLAYER ENGINE
         elif current_step == "ask_tb_s1":
             url = f"{BASE_URL_OSINT}/terabox-stream"
             params = {"key": OSINT_KEY, "type": "video_stream", "url": txt}
-            execute_api_call(message, url, "TERABOX STREAM V1", txt, params=params)
+            execute_terabox_call(message, url, "TERABOX STREAM V1", txt, params=params)
             return
         elif current_step == "ask_tb_s2":
             url = f"{BASE_URL_OSINT}/terabox-stream-v2"
             params = {"key": OSINT_KEY, "type": "video_streamv2", "url": txt}
-            execute_api_call(message, url, "TERABOX STREAM V2", txt, params=params)
+            execute_terabox_call(message, url, "TERABOX STREAM V2", txt, params=params)
             return
         elif current_step == "ask_tb_s3":
             url = f"{BASE_URL_OSINT}/terabox-stream-v3"
             params = {"key": OSINT_KEY, "type": "video_streamv3", "url": txt}
-            execute_api_call(message, url, "TERABOX STREAM V3", txt, params=params)
+            execute_terabox_call(message, url, "TERABOX STREAM V3", txt, params=params)
             return
         elif current_step == "ask_tb_f2":
             url = f"{BASE_URL_OSINT}/terabox-file-v2"
             params = {"key": OSINT_KEY, "type": "file_downloadv2", "url": txt}
-            execute_api_call(message, url, "TERABOX FILE DL V2", txt, params=params)
+            execute_terabox_call(message, url, "TERABOX FILE DL V2", txt, params=params)
             return
         elif current_step == "ask_tb_v2":
             url = f"{BASE_URL_OSINT}/terabox-video-v2"
             params = {"key": OSINT_KEY, "type": "video_downloadv2", "url": txt}
-            execute_api_call(message, url, "TERABOX VIDEO DL V2", txt, params=params)
+            execute_terabox_call(message, url, "TERABOX VIDEO DL V2", txt, params=params)
             return
 
-        # Standard OSINT Tools
+        # Standard Tools
         elif current_step == "ask_vehicle":
             url = f"{BASE_URL_OSINT}/vehicle-v1"
             params = {"key": OSINT_KEY, "type": "v1", "rc": txt.upper()}
@@ -521,11 +591,11 @@ def handle_queries(message):
             execute_api_call(message, url, "BGMI PLAYER", txt, params=params)
             return
 
-    # 2. Smart Auto-Detect Routing
-    if "terabox" in txt.lower() or "1024terabox" in txt.lower():
+    # 2. Smart Auto-Detect Routing for Terabox Links
+    if "terabox" in txt.lower() or "1024terabox" in txt.lower() or "teraboxapp" in txt.lower():
         url = f"{BASE_URL_OSINT}/terabox-stream-v2"
         params = {"key": OSINT_KEY, "type": "video_streamv2", "url": txt}
-        execute_api_call(message, url, "TERABOX AUTO-STREAM", txt, params=params)
+        execute_terabox_call(message, url, "TERABOX AUTO-STREAM", txt, params=params)
     elif txt.startswith("http://") or txt.startswith("https://"):
         url = f"{BASE_URL_OSINT}/website-source"
         params = {"key": OSINT_KEY, "url": txt}
