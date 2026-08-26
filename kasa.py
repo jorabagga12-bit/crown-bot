@@ -1,3 +1,4 @@
+ 
 import os
 import re
 import json
@@ -79,7 +80,7 @@ def auto_delete(chat_id, message_id):
 
 def extract_media_url(data):
     if isinstance(data, str):
-        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download"]):
+        if data.startswith("http") and any(ext in data.lower() for ext in [".mp4", ".mov", "m3u8", ".jpg", ".jpeg", ".png", ".mp3", "video", "stream", "download", "play"]):
             return data
         return None
 
@@ -405,13 +406,22 @@ def execute_request(message, endpoint_list, query_label, search_val):
     total_lookups += 1
     save_data()
 
-    if media_url:
+    # Special handling for Terabox / Media Links to give direct Chrome Open / Download buttons
+    if "Terabox" in query_label or media_url:
+        target_link = media_url if media_url else search_val
         markup = InlineKeyboardMarkup(row_width=2)
         markup.add(
-            InlineKeyboardButton("▶️ Open Media Link", url=media_url),
-            InlineKeyboardButton("📥 Download Directly", url=media_url)
+            InlineKeyboardButton("🌐 Open in Chrome", url=target_link),
+            InlineKeyboardButton("📥 Download Directly", url=target_link)
         )
-        bot.edit_message_text(f"👑 <b>Media extracted successfully for {query_label}!</b>", message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML")
+        bot.edit_message_text(
+            f"👑 <b>Terabox File / Stream Ready!</b> 👑\n"
+            f"──────────────────────────────\n"
+            f"🔗 <b>Link:</b> <code>{search_val}</code>\n"
+            f"──────────────────────────────\n"
+            f"✨ <i>Choose an action below to open or download directly:</i>",
+            message.chat.id, wait_msg.message_id, reply_markup=markup, parse_mode="HTML"
+        )
         return
 
     if final_response:
